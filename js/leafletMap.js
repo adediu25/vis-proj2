@@ -19,6 +19,8 @@ class LeafletMap {
   initVis() {
     let vis = this;
 
+    vis.radiusSize = 3;
+
     // Satellite Map
     vis.satUrl = 'https://basemap.nationalmap.gov/arcgis/rest/services/USGSImageryTopo/MapServer/tile/{z}/{y}/{x}'
     vis.satAttr = 'Tiles courtesy of the <a href="https://usgs.gov/">U.S. Geological Survey</a>'
@@ -52,14 +54,7 @@ class LeafletMap {
       layers: [vis.base_layers['Street Map']]
     });
 
-    vis.layerControl = L.control.layers(vis.base_layers, {}).addTo(vis.theMap)
-
-    //this is the base map layer, where we are showing the map background
-    // vis.base_layer = L.tileLayer(vis.streetUrl, {
-    //   id: 'topo-image',
-    //   attribution: vis.streetAttr,
-    //   ext: 'png'
-    // });
+    vis.layerControl = L.control.layers(vis.base_layers, {}).addTo(vis.theMap);
 
     //if you stopped here, you would just have a map
 
@@ -84,7 +79,7 @@ class LeafletMap {
                             d3.select(this).transition() //D3 selects the object we have moused over in order to perform operations on it
                               .duration('150') //how long we are transitioning between the two states (works like keyframes)
                               .attr("fill", "red") //change the fill
-                              .attr('r', 4); //change radius
+                              .attr('r', vis.radiusSize + 1); //change radius
 
                             //create a tool tip
                             d3.select('#tooltip')
@@ -104,7 +99,7 @@ class LeafletMap {
                             d3.select(this).transition() //D3 selects the object we have moused over in order to perform operations on it
                               .duration('150') //how long we are transitioning between the two states (works like keyframes)
                               .attr("fill", "steelblue") //change the fill
-                              .attr('r', 3) //change radius
+                              .attr('r', vis.radiusSize) //change radius
 
                             d3.select('#tooltip').style('opacity', 0);//turn off the tooltip
 
@@ -127,16 +122,18 @@ class LeafletMap {
     let vis = this;
 
     //want to see how zoomed in you are? 
-    // console.log(vis.map.getZoom()); //how zoomed am I
+    // console.log(vis.theMap.getZoom()); //how zoomed am I
     
     //want to control the size of the radius to be a certain number of meters? 
-    vis.radiusSize = 3; 
+    // vis.radiusSize = 3; 
 
-    // if( vis.theMap.getZoom > 15 ){
-    //   metresPerPixel = 40075016.686 * Math.abs(Math.cos(map.getCenter().lat * Math.PI/180)) / Math.pow(2, map.getZoom()+8);
-    //   desiredMetersForPoint = 100; //or the uncertainty measure... =) 
-    //   radiusSize = desiredMetersForPoint / metresPerPixel;
-    // }
+    if( vis.theMap.getZoom() > 12 ){
+      let metresPerPixel = 40075016.686 * Math.abs(Math.cos(vis.theMap.getCenter().lat * Math.PI/180)) / Math.pow(2, vis.theMap.getZoom()+8);
+      let desiredMetersForPoint = 100; //or the uncertainty measure... =) 
+      vis.radiusSize = desiredMetersForPoint / metresPerPixel;
+    }
+
+    console.log(vis.radiusSize);
    
    //redraw based on new zoom- need to recalculate on-screen position
     vis.Dots
