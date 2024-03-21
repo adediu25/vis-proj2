@@ -31,34 +31,28 @@ class LeafletMap {
     vis.topoUrl = 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png';
     vis.topoAttr = 'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)'
 
-    //ESRI
-    vis.esriUrl = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
-    vis.esriAttr = 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community';
-
-    //Thunderforest Outdoors- requires key... so meh... 
-    vis.thOutUrl = 'https://{s}.tile.thunderforest.com/outdoors/{z}/{x}/{y}.png?apikey={apikey}';
-    vis.thOutAttr = '&copy; <a href="http://www.thunderforest.com/">Thunderforest</a>, &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
-
-    //Stamen Terrain
-    vis.stUrl = 'https://stamen-tiles-{s}.a.ssl.fastly.net/terrain/{z}/{x}/{y}{r}.{ext}';
-    vis.stAttr = 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
-
     vis.base_layers = {
-      street: L.tileLayer(vis.streetUrl, {
+      'Street Map': L.tileLayer(vis.streetUrl, {
         attribution: vis.streetAttr,
         ext: 'png'
       }),
-      sat: L.tileLayer(vis.satUrl, {
+      'Satellite': L.tileLayer(vis.satUrl, {
         attribution: vis.satAttr,
         ext: 'png'
       }),
-      topo: L.tileLayer(vis.topoUrl, {
+      'Topographic': L.tileLayer(vis.topoUrl, {
         attribution: vis.topoAttr,
         ext: 'png'
       }),
     }
 
-    L.control.layers(vis.base_layers, {}).addTo(map)
+    vis.theMap = L.map('leaflet-map', {
+      center: [30, 0],
+      zoom: 2,
+      layers: [vis.base_layers['Street Map']]
+    });
+
+    vis.layerControl = L.control.layers(vis.base_layers, {}).addTo(vis.theMap)
 
     //this is the base map layer, where we are showing the map background
     // vis.base_layer = L.tileLayer(vis.streetUrl, {
@@ -66,12 +60,6 @@ class LeafletMap {
     //   attribution: vis.streetAttr,
     //   ext: 'png'
     // });
-
-    vis.theMap = L.map('leaflet-map', {
-      center: [30, 0],
-      zoom: 2,
-      layers: [vis.base_layer]
-    });
 
     //if you stopped here, you would just have a map
 
@@ -166,35 +154,4 @@ class LeafletMap {
  
   }
 
-  changeMap(mapType){
-    let vis = this;
-
-    if (mapType == 'street'){
-      vis.base_layer = L.tileLayer(vis.streetUrl, {
-        id: 'topo-image',
-        attribution: vis.streetAttr,
-        ext: 'png'
-      });
-    }
-    else if(mapType == 'satellite'){
-      vis.base_layer = L.tileLayer(vis.satUrl, {
-        id: 'topo-image',
-        attribution: vis.satAttr,
-        ext: 'png'
-      });
-    }
-    else{
-      vis.base_layer = L.tileLayer(vis.topoUrl, {
-        id: 'topo-image',
-        attribution: vis.topoAttr,
-        ext: 'png'
-      });
-    }
-
-    // vis.theMap = L.map('leaflet-map', {
-    //   center: [30, 0],
-    //   zoom: 2,
-    //   layers: [vis.base_layer]
-    // });
-  }
 }

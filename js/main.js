@@ -15,8 +15,3 @@ d3.csv('data/ufoSample.csv')
 
   })
   .catch(error => console.error(error));
-
-d3.selectAll('.map-selection').on("click", function(event){
-  console.log(event.srcElement.id);
-  leafletMap.changeMap(event.srcElement.id);
-});
