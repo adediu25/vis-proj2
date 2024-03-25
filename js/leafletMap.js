@@ -5,11 +5,12 @@ class LeafletMap {
    * @param {Object}
    * @param {Array}
    */
-  constructor(_config, _data) {
+  constructor(_config, _data, _colorBy) {
     this.config = {
       parentElement: _config.parentElement,
     }
     this.data = _data;
+    this.colorBy = _colorBy;
     this.initVis();
   }
   
@@ -18,6 +19,16 @@ class LeafletMap {
    */
   initVis() {
     let vis = this;
+
+    // Define the color scale
+    const colorScale = d3.scaleSequential()
+      .domain(d3.extent(vis.data, d => d.year)) // Map the range of years to the domain of the color scale
+      .interpolator(d3.interpolateRainbow); // Use the rainbow color interpolation
+
+    // Loop through each data point and assign a color based on its year
+    vis.data.forEach(d => {
+      d.colorFill = colorScale(d.year);
+    });
 
     // Satellite Map
     vis.satUrl = 'https://basemap.nationalmap.gov/arcgis/rest/services/USGSImageryTopo/MapServer/tile/{z}/{y}/{x}'
@@ -72,7 +83,7 @@ class LeafletMap {
     vis.Dots = vis.svg.selectAll('circle')
                     .data(vis.data.filter(d => d.latitude && d.longitude))
                     .join('circle')
-                        .attr("fill", "steelblue") 
+                        .attr("fill", d => d.colorFill) 
                         .attr("stroke", "black")
                         //Leaflet has to take control of projecting points. Here we are feeding the latitude and longitude coordinates to
                         //leaflet so that it can project them on the coordinates of the view. Notice, we have to reverse lat and lon.
@@ -91,7 +102,7 @@ class LeafletMap {
                                 .style('opacity', 1)
                                 .style('z-index', 1000000)
                                   // Format number with million and thousand separator
-                                .html(`<div class="tooltip-label">City: ${d.city_area}, UFO Shape: ${d.ufo_shape}</div>`);
+                                .html(`<div class="tooltip-label">City: ${d.city_area}, UFO Shape: ${d.ufo_shape}, Year: ${d.year}</div>`);
 
                           })
                         .on('mousemove', (event) => {
@@ -103,7 +114,7 @@ class LeafletMap {
                         .on('mouseleave', function() { //function to add mouseover event
                             d3.select(this).transition() //D3 selects the object we have moused over in order to perform operations on it
                               .duration('150') //how long we are transitioning between the two states (works like keyframes)
-                              .attr("fill", "steelblue") //change the fill
+                              .attr("fill", d => d.colorFill) //change the fill
                               .attr('r', 3) //change radius
 
                             d3.select('#tooltip').style('opacity', 0);//turn off the tooltip
@@ -142,7 +153,8 @@ class LeafletMap {
     vis.Dots
       .attr("cx", d => vis.theMap.latLngToLayerPoint([d.latitude,d.longitude]).x)
       .attr("cy", d => vis.theMap.latLngToLayerPoint([d.latitude,d.longitude]).y)
-      .attr("r", vis.radiusSize) ;
+      .attr("r", vis.radiusSize)
+      .attr("fill", d => d.colorFill);
 
   }
 
