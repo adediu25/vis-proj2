@@ -27,7 +27,7 @@ d3.csv('data/ufoSample.csv')
     });
 
     // Initialize chart and then show it
-    leafletMap = new LeafletMap({ parentElement: '#leaflet-map'}, data, colorBy);
+    leafletMap = new LeafletMap({ parentElement: '#leaflet-map', legendElement: '#map-legend'}, data, colorBy);
 
     // Function to update the scatterplot class
     function updateMapColor() {

@@ -8,6 +8,7 @@ class LeafletMap {
   constructor(_config, _data, _colorBy) {
     this.config = {
       parentElement: _config.parentElement,
+      legendElement: _config.legendElement
     }
     this.data = _data;
     this.colorBy = _colorBy;
@@ -127,6 +128,11 @@ class LeafletMap {
       vis.updateVis();
     });
 
+    legend({
+      color: colorScale,
+      parentElement: vis.config.legendElement,
+      title: "Year"
+    })
   }
 
   updateVis() {
