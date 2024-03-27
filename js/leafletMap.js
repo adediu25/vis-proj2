@@ -8,6 +8,7 @@ class LeafletMap {
   constructor(_config, _data, _colorBy) {
     this.config = {
       parentElement: _config.parentElement,
+      legendElement: _config.legendElement
     }
     this.data = _data;
     this.colorBy = _colorBy;
@@ -20,28 +21,35 @@ class LeafletMap {
   initVis() {
     let vis = this;
 
+    vis.radiusSize = 3;
+
     // Initialize the color scale based on the selected option
     switch (vis.colorBy) {
       case 'year':
         vis.colorScale = d3.scaleSequential()
           .domain(d3.extent(vis.data, d => d.year))
           .interpolator(d3.interpolateRainbow);
+        vis.legendTitle = 'Year';
         break;
       case 'month':
         vis.colorScale = d3.scaleSequential()
           .domain([1, 12]) // Months range from 1 to 12
           .interpolator(d3.interpolateRainbow);
+        vis.legendTitle = 'Month';
         break;
       case 'tod':
         // Initialize color scale for Time of Day
+        vis.legendTitle = 'Time of Day';
         break;
       case 'ufo_shape':
         // Initialize color scale for UFO Shape
+        vis.legendTitle = 'UFO Shape';
         break;
       default:
         vis.colorScale = d3.scaleSequential()
           .domain(d3.extent(vis.data, d => d.year))
           .interpolator(d3.interpolateRainbow);
+          vis.legendTitle = 'Year';
     }
 
     // Loop through each data point and assign a color based on the selected option
@@ -107,14 +115,7 @@ class LeafletMap {
       layers: [vis.base_layers['Street Map']]
     });
 
-    vis.layerControl = L.control.layers(vis.base_layers, {}).addTo(vis.theMap)
-
-    //this is the base map layer, where we are showing the map background
-    // vis.base_layer = L.tileLayer(vis.streetUrl, {
-    //   id: 'topo-image',
-    //   attribution: vis.streetAttr,
-    //   ext: 'png'
-    // });
+    vis.layerControl = L.control.layers(vis.base_layers, {}).addTo(vis.theMap);
 
     //if you stopped here, you would just have a map
 
@@ -139,7 +140,7 @@ class LeafletMap {
                             d3.select(this).transition() //D3 selects the object we have moused over in order to perform operations on it
                               .duration('150') //how long we are transitioning between the two states (works like keyframes)
                               .attr("fill", "red") //change the fill
-                              .attr('r', 4); //change radius
+                              .attr('r', vis.radiusSize + 1); //change radius
 
                             //create a tool tip
                             d3.select('#tooltip')
@@ -179,6 +180,11 @@ class LeafletMap {
       vis.updateVis();
     });
 
+    legend({
+      color: vis.colorScale,
+      parentElement: vis.config.legendElement,
+      title: "Year"
+    })
   }
 
   updateVis() {
@@ -222,20 +228,28 @@ class LeafletMap {
       }
     });
 
+    legend({
+      color: vis.colorScale,
+      parentElement: vis.config.legendElement,
+      title: "Year"
+    })
+
     // Update visualization with new colors
     vis.Dots.attr("fill", d => d.colorFill);
 
     //want to see how zoomed in you are? 
-    // console.log(vis.map.getZoom()); //how zoomed am I
+    // console.log(vis.theMap.getZoom()); //how zoomed am I
     
     //want to control the size of the radius to be a certain number of meters? 
-    vis.radiusSize = 3; 
+    // vis.radiusSize = 3; 
 
-    // if( vis.theMap.getZoom > 15 ){
-    //   metresPerPixel = 40075016.686 * Math.abs(Math.cos(map.getCenter().lat * Math.PI/180)) / Math.pow(2, map.getZoom()+8);
-    //   desiredMetersForPoint = 100; //or the uncertainty measure... =) 
-    //   radiusSize = desiredMetersForPoint / metresPerPixel;
-    // }
+    if( vis.theMap.getZoom() > 12 ){
+      let metresPerPixel = 40075016.686 * Math.abs(Math.cos(vis.theMap.getCenter().lat * Math.PI/180)) / Math.pow(2, vis.theMap.getZoom()+8);
+      let desiredMetersForPoint = 100; //or the uncertainty measure... =) 
+      vis.radiusSize = desiredMetersForPoint / metresPerPixel;
+    }
+
+    console.log(vis.radiusSize);
    
    //redraw based on new zoom- need to recalculate on-screen position
     vis.Dots
