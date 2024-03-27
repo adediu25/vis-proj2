@@ -2,13 +2,27 @@
 <html>
 <head>
     <title>Project 2</title>
+    <h1><center>The Truth Is Out There</center></h1>
     <meta charset="UTF-8">
     <link rel="stylesheet" href="css/leaflet.css">
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+
+    <!-- Add in the dropdown for the color by selection -->
+    <div id="dropdowns" style="display: flex; justify-content: center;">
+        <label for="color-by-option" style="margin-right: 10px;"><strong>Color By: </strong></label>
+        <select name="color-by-option" id="color-by-option" style="margin-right: 10px;">
+            <option selected="selected" value="year" name="Year">Year</option>
+            <option value="month" name="Month">Month</option>
+            <option value="tod" name="Time Of Day">Time Of Day</option>
+            <option value="encounter_length" name="Encounter Length">Encounter Length</option>
+        </select>
+    </div>
+    <br/>
     <div id="leaflet-map"></div>
     <div id="timeline"></div>
+    <div id="map-legend"></div>
     
     <!-- libraries -->
     <script src="js/d3.v6.min.js"></script>
@@ -18,6 +32,7 @@
     <script src="js/main.js"></script>
     <script src="js/leafletMap.js"></script>
     <script src="js/timeline.js"></script>
+    <script src="js/legend.js"></script>
 
     <div id="tooltip"></div>
 
