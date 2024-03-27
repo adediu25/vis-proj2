@@ -38,12 +38,16 @@ class LeafletMap {
         vis.legendTitle = 'Month';
         break;
       case 'tod':
-        // Initialize color scale for Time of Day
+        vis.colorScale = d3.scaleSequential()
+          .domain([0, 23])
+          .interpolator(d3.interpolateRainbow);
         vis.legendTitle = 'Time of Day';
         break;
-      case 'ufo_shape':
-        // Initialize color scale for UFO Shape
-        vis.legendTitle = 'UFO Shape';
+      case 'encounter_length':
+        vis.colorScale = d3.scaleThreshold()
+          .domain([60, 300, 600, 1800, 3600, 21600, 43200, 86400])
+          .range(d3.schemeCategory10.slice(0,8));
+        vis.legendTitle = 'Encounter Length';
         break;
       default:
         vis.colorScale = d3.scaleSequential()
@@ -62,25 +66,15 @@ class LeafletMap {
           d.colorFill = vis.colorScale(d.month);
           break;
         case 'tod':
-          // Assign color based on Time of Day
+          d.colorFill = vis.colorScale(d.tod);
           break;
-        case 'ufo_shape':
-          // Assign color based on UFO Shape
+        case 'encounter_length':
+          d.colorFill = vis.colorScale(d.encounter_length);
           break;
         default:
           d.colorFill = vis.colorScale(d.year);
       }
     });
-
-    // // Define the color scale
-    // const colorScale = d3.scaleSequential()
-    //   .domain(d3.extent(vis.data, d => d.year)) // Map the range of years to the domain of the color scale
-    //   .interpolator(d3.interpolateRainbow); // Use the rainbow color interpolation
-
-    // // Loop through each data point and assign a color based on its year
-    // vis.data.forEach(d => {
-    //   d.colorFill = colorScale(d.year);
-    // });
 
     // Satellite Map
     vis.satUrl = 'https://basemap.nationalmap.gov/arcgis/rest/services/USGSImageryTopo/MapServer/tile/{z}/{y}/{x}'
@@ -117,7 +111,20 @@ class LeafletMap {
 
     vis.layerControl = L.control.layers(vis.base_layers, {}).addTo(vis.theMap);
 
-    //if you stopped here, you would just have a map
+    // Function to format encounter length
+    function formatEncounterLength(seconds) {
+      if (seconds < 60) {
+        return `${seconds} second(s)`;
+      } else if (seconds < 3600) {
+        const minutes = Math.floor(seconds / 60);
+        const remainingSeconds = seconds % 60;
+        return `${minutes} minute(s) ${remainingSeconds} second(s)`;
+      } else {
+        const hours = Math.floor(seconds / 3600);
+        const remainingMinutes = Math.floor((seconds % 3600) / 60);
+        return `${hours} hour(s) ${remainingMinutes} minute(s)`;
+      }
+    }
 
     //initialize svg for d3 to add to map
     L.svg({clickable:true}).addTo(vis.theMap)// we have to make the svg layer clickable
@@ -148,9 +155,10 @@ class LeafletMap {
                                 .style('z-index', 1000000)
                                   // Format number with million and thousand separator
                                 .html(`<div class="tooltip-label">City: ${d.city_area}<br/>
-                                      UFO Shape: ${d.ufo_shape}<br/>
                                       Year: ${d.year}<br/>
-                                      Month: ${d.month}</div>`);
+                                      Month: ${d.month}<br/>
+                                      Time of Day (military hour): ${d.tod}<br/>
+                                      Encounter Length: ${formatEncounterLength(d.encounter_length)}<br/></div>`);
 
                           })
                         .on('mousemove', (event) => {
@@ -205,12 +213,16 @@ class LeafletMap {
         vis.legendTitle = 'Month';
         break;
       case 'tod':
-        // Initialize color scale for Time of Day
-        vis.legendTitle = 'Time of Day';
+        vis.colorScale = d3.scaleSequential()
+          .domain([0, 24]) // Time of day ranges from 0 to 24
+          .interpolator(d3.interpolateRainbow);
+        vis.legendTitle = 'Time of Day (military hour)';
         break;
-      case 'ufo_shape':
-        // Initialize color scale for UFO Shape
-        vis.legendTitle = 'UFO Shape';
+      case 'encounter_length':
+        vis.colorScale = d3.scaleThreshold()
+          .domain([60, 300, 600, 1800, 3600, 21600, 43200, 86400])
+          .range(d3.schemeCategory10.slice(0,8));
+        vis.legendTitle = 'Encounter Length (seconds)';
         break;
       default:
         vis.colorScale = d3.scaleSequential()
@@ -229,10 +241,10 @@ class LeafletMap {
           d.colorFill = vis.colorScale(d.month);
           break;
         case 'tod':
-          // Update color based on Time of Day
+          d.colorFill = vis.colorScale(d.tod);
           break;
-        case 'ufo_shape':
-          // Update color based on UFO Shape
+        case 'encounter_length':
+          d.colorFill = vis.colorScale(d.encounter_length);
           break;
         default:
           d.colorFill = vis.colorScale(d.year);
