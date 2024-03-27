@@ -19,6 +19,12 @@ function legend({
     tickFormat,
     tickValues
   } = {}) {
+    let legEl = d3.select('#legend');
+
+    if (legEl){
+      legEl.remove();
+    }
+
     const svg = d3.select(parentElement).append('svg')
       .attr("width", width)
       .attr("id", "legend")

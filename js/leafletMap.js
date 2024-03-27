@@ -22,28 +22,34 @@ class LeafletMap {
     let vis = this;
 
     vis.radiusSize = 3;
+
     // Initialize the color scale based on the selected option
     switch (vis.colorBy) {
       case 'year':
         vis.colorScale = d3.scaleSequential()
           .domain(d3.extent(vis.data, d => d.year))
           .interpolator(d3.interpolateRainbow);
+        vis.legendTitle = 'Year';
         break;
       case 'month':
         vis.colorScale = d3.scaleSequential()
           .domain([1, 12]) // Months range from 1 to 12
           .interpolator(d3.interpolateRainbow);
+        vis.legendTitle = 'Month';
         break;
       case 'tod':
         // Initialize color scale for Time of Day
+        vis.legendTitle = 'Time of Day';
         break;
       case 'ufo_shape':
         // Initialize color scale for UFO Shape
+        vis.legendTitle = 'UFO Shape';
         break;
       default:
         vis.colorScale = d3.scaleSequential()
           .domain(d3.extent(vis.data, d => d.year))
           .interpolator(d3.interpolateRainbow);
+          vis.legendTitle = 'Year';
     }
 
     // Loop through each data point and assign a color based on the selected option
@@ -175,7 +181,7 @@ class LeafletMap {
     });
 
     legend({
-      color: colorScale,
+      color: vis.colorScale,
       parentElement: vis.config.legendElement,
       title: "Year"
     })
@@ -221,6 +227,12 @@ class LeafletMap {
           d.colorFill = vis.colorScale(d.year);
       }
     });
+
+    legend({
+      color: vis.colorScale,
+      parentElement: vis.config.legendElement,
+      title: "Year"
+    })
 
     // Update visualization with new colors
     vis.Dots.attr("fill", d => d.colorFill);
