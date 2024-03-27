@@ -183,7 +183,7 @@ class LeafletMap {
     legend({
       color: vis.colorScale,
       parentElement: vis.config.legendElement,
-      title: "Year"
+      title: vis.legendTitle
     })
   }
 
@@ -193,19 +193,30 @@ class LeafletMap {
     // Update the color scale and colors of data points based on the selected option
     switch (vis.colorBy) {
       case 'year':
-        vis.colorScale.domain(d3.extent(vis.data, d => d.year));
+        vis.colorScale = d3.scaleSequential()
+          .domain(d3.extent(vis.data, d => d.year))
+          .interpolator(d3.interpolateRainbow);
+        vis.legendTitle = 'Year';
         break;
       case 'month':
-        vis.colorScale.domain([1, 12]); // Months range from 1 to 12
+        vis.colorScale = d3.scaleSequential()
+          .domain([1, 12]) // Months range from 1 to 12
+          .interpolator(d3.interpolateRainbow);
+        vis.legendTitle = 'Month';
         break;
       case 'tod':
-        // Update color scale for Time of Day
+        // Initialize color scale for Time of Day
+        vis.legendTitle = 'Time of Day';
         break;
       case 'ufo_shape':
-        // Update color scale for UFO Shape
+        // Initialize color scale for UFO Shape
+        vis.legendTitle = 'UFO Shape';
         break;
       default:
-        vis.colorScale.domain(d3.extent(vis.data, d => d.year));
+        vis.colorScale = d3.scaleSequential()
+          .domain(d3.extent(vis.data, d => d.year))
+          .interpolator(d3.interpolateRainbow);
+          vis.legendTitle = 'Year';
     }
 
     // Loop through each data point and update its color
@@ -231,7 +242,7 @@ class LeafletMap {
     legend({
       color: vis.colorScale,
       parentElement: vis.config.legendElement,
-      title: "Year"
+      title: vis.legendTitle
     })
 
     // Update visualization with new colors
