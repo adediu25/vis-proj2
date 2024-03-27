@@ -7,9 +7,15 @@ d3.csv('data/ufoSample.csv')
       // console.log(d);
 
       const [datePart, timePart] = d.date_time.split(' ');
+      const [hourStr, minuteStr] = timePart.split(':');
+      const hour = parseInt(hourStr, 10);
       const [month, day, year] = datePart.split('/');
+      const encounter_length = parseInt(d.encounter_length);
+      d.tod = +hour;
       d.year = +year;
       d.month = +month;
+
+      d.encounter_length = +encounter_length;
 
       d.latitude = +d.latitude; //make sure these are not strings
       d.longitude = +d.longitude; //make sure these are not strings
