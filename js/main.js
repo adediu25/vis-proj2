@@ -29,8 +29,8 @@ d3.csv('data/ufoSample.csv')
     });
 
     // Initialize chart and then show it
-    leafletMap = new LeafletMap({ parentElement: '#leaflet-map'}, data);
     timeline = new Timeline({parentElement: '#timeline'}, data);
+    
     // Initialize the colorBy value
     let colorBy = "year";
 
