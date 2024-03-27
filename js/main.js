@@ -2,7 +2,7 @@
 d3.csv('data/ufoSample.csv')
 .then(data => {
     console.log(data[0]);
-    console.log(data.length);
+    // console.log(data.length);
     data.forEach(d => {
       // console.log(d);
 

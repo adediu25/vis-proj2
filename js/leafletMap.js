@@ -22,16 +22,59 @@ class LeafletMap {
     let vis = this;
 
     vis.radiusSize = 3;
-    
-    // Define the color scale
-    const colorScale = d3.scaleSequential()
-      .domain(d3.extent(vis.data, d => d.year)) // Map the range of years to the domain of the color scale
-      .interpolator(d3.interpolateRainbow); // Use the rainbow color interpolation
+    // Initialize the color scale based on the selected option
+    switch (vis.colorBy) {
+      case 'year':
+        vis.colorScale = d3.scaleSequential()
+          .domain(d3.extent(vis.data, d => d.year))
+          .interpolator(d3.interpolateRainbow);
+        break;
+      case 'month':
+        vis.colorScale = d3.scaleSequential()
+          .domain([1, 12]) // Months range from 1 to 12
+          .interpolator(d3.interpolateRainbow);
+        break;
+      case 'tod':
+        // Initialize color scale for Time of Day
+        break;
+      case 'ufo_shape':
+        // Initialize color scale for UFO Shape
+        break;
+      default:
+        vis.colorScale = d3.scaleSequential()
+          .domain(d3.extent(vis.data, d => d.year))
+          .interpolator(d3.interpolateRainbow);
+    }
 
-    // Loop through each data point and assign a color based on its year
+    // Loop through each data point and assign a color based on the selected option
     vis.data.forEach(d => {
-      d.colorFill = colorScale(d.year);
+      switch (vis.colorBy) {
+        case 'year':
+          d.colorFill = vis.colorScale(d.year);
+          break;
+        case 'month':
+          d.colorFill = vis.colorScale(d.month);
+          break;
+        case 'tod':
+          // Assign color based on Time of Day
+          break;
+        case 'ufo_shape':
+          // Assign color based on UFO Shape
+          break;
+        default:
+          d.colorFill = vis.colorScale(d.year);
+      }
     });
+
+    // // Define the color scale
+    // const colorScale = d3.scaleSequential()
+    //   .domain(d3.extent(vis.data, d => d.year)) // Map the range of years to the domain of the color scale
+    //   .interpolator(d3.interpolateRainbow); // Use the rainbow color interpolation
+
+    // // Loop through each data point and assign a color based on its year
+    // vis.data.forEach(d => {
+    //   d.colorFill = colorScale(d.year);
+    // });
 
     // Satellite Map
     vis.satUrl = 'https://basemap.nationalmap.gov/arcgis/rest/services/USGSImageryTopo/MapServer/tile/{z}/{y}/{x}'
@@ -98,7 +141,10 @@ class LeafletMap {
                                 .style('opacity', 1)
                                 .style('z-index', 1000000)
                                   // Format number with million and thousand separator
-                                .html(`<div class="tooltip-label">City: ${d.city_area}, UFO Shape: ${d.ufo_shape}, Year: ${d.year}</div>`);
+                                .html(`<div class="tooltip-label">City: ${d.city_area}<br/>
+                                      UFO Shape: ${d.ufo_shape}<br/>
+                                      Year: ${d.year}<br/>
+                                      Month: ${d.month}</div>`);
 
                           })
                         .on('mousemove', (event) => {
@@ -137,6 +183,47 @@ class LeafletMap {
 
   updateVis() {
     let vis = this;
+
+    // Update the color scale and colors of data points based on the selected option
+    switch (vis.colorBy) {
+      case 'year':
+        vis.colorScale.domain(d3.extent(vis.data, d => d.year));
+        break;
+      case 'month':
+        vis.colorScale.domain([1, 12]); // Months range from 1 to 12
+        break;
+      case 'tod':
+        // Update color scale for Time of Day
+        break;
+      case 'ufo_shape':
+        // Update color scale for UFO Shape
+        break;
+      default:
+        vis.colorScale.domain(d3.extent(vis.data, d => d.year));
+    }
+
+    // Loop through each data point and update its color
+    vis.data.forEach(d => {
+      switch (vis.colorBy) {
+        case 'year':
+          d.colorFill = vis.colorScale(d.year);
+          break;
+        case 'month':
+          d.colorFill = vis.colorScale(d.month);
+          break;
+        case 'tod':
+          // Update color based on Time of Day
+          break;
+        case 'ufo_shape':
+          // Update color based on UFO Shape
+          break;
+        default:
+          d.colorFill = vis.colorScale(d.year);
+      }
+    });
+
+    // Update visualization with new colors
+    vis.Dots.attr("fill", d => d.colorFill);
 
     //want to see how zoomed in you are? 
     // console.log(vis.theMap.getZoom()); //how zoomed am I
