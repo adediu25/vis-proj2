@@ -66,23 +66,28 @@ class Timeline {
         .call(d3.axisLeft(y));
 
     // Tooltip
-    const tooltip = d3.select(".tooltip");
+    const tooltip = d3.select("#tooltip");
 
     vis.svg.selectAll(".bar")
-        .on("mouseover", (event, d) => {
+        .on("mousemove", (event, d) => {
             tooltip.transition()
                 .duration(200)
                 .style("opacity", .9);
             tooltip.html(`Sightings: ${d.count}`)
-                .style("left", (event.pageX - 60) + "px")
-                .style("top", (event.pageY - 70) + "px");
+                .style("left", (event.pageX + 10) + "px")
+                .style("top", (event.pageY + 10) + "px");
         })
-        .on("mouseout", () => {
+        .on("mouseleave", () => {
             tooltip.transition()
                 .duration(500)
                 .style("opacity", 0);
         });
   }
+
+  updateVis(){
+
+  }
+
 }
 
 
