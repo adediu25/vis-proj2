@@ -1,17 +1,22 @@
-// d3.csv('data/ufo_sightings.csv')
 d3.csv('data/ufoSample.csv')
 .then(data => {
-    console.log(data[0]);
-    console.log(data.length);
+    let shapeCounts = new Map();
     data.forEach(d => {
-      // console.log(d);
-      d.latitude = +d.latitude; //make sure these are not strings
-      d.longitude = +d.longitude; //make sure these are not strings
+      d.latitude = +d.latitude; // Ensure these are numbers
+      d.longitude = +d.longitude; // Ensure these are numbers
+      let count = shapeCounts.get(d.ufo_shape) || 0;
+      shapeCounts.set(d.ufo_shape, count + 1);
     });
 
-    // Initialize chart and then show it
+    let pieData = [...shapeCounts].map(([shape, count]) => ({shape, count}));
+
+    // Initialize charts
     leafletMap = new LeafletMap({ parentElement: '#leaflet-map'}, data);
+    //pieChart = new PieChart({parentElement : '#pie-chart-container'}, pieData);
 
-
-  })
-  .catch(error => console.error(error));
+    // Load the inverted index and initialize the WordCloud
+    d3.json('data/inverted_index.json').then(invertedIndex => {
+      wordCloud = new WordCloud({parentElement: '#wordcloud-container'}, invertedIndex);
+    });
+})
+.catch(error => console.error(error));
