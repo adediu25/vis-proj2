@@ -315,11 +315,11 @@ class LeafletMap {
     console.log(vis.radiusSize);
    
    //redraw based on new zoom- need to recalculate on-screen position
-    vis.Dots
-      .attr("cx", d => vis.theMap.latLngToLayerPoint([d.latitude,d.longitude]).x)
-      .attr("cy", d => vis.theMap.latLngToLayerPoint([d.latitude,d.longitude]).y)
-      .attr("r", vis.radiusSize)
-      .attr("fill", d => d.colorFill);
+    // vis.Dots
+    //   .attr("cx", d => vis.theMap.latLngToLayerPoint([d.latitude,d.longitude]).x)
+    //   .attr("cy", d => vis.theMap.latLngToLayerPoint([d.latitude,d.longitude]).y)
+    //   .attr("r", vis.radiusSize)
+    //   .attr("fill", d => d.colorFill);
 
   }
 
@@ -348,7 +348,7 @@ class LeafletMap {
     vis.data = brushedData;
     vis.updateVis();
     vis.updatingFromBrush = false;
-    vis.data = vis.fullData;
+    // vis.data = vis.fullData;
   }
 
   formatEncounterLength(seconds) {

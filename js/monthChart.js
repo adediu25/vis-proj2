@@ -159,6 +159,13 @@ class MonthChart {
                         brushedData: filteredData
                     }}))
             }
+            else if(!vis.resettingBrush && !vis.updatingFromBrush && !selection){
+                d3.select(vis.config.parentElement)
+                    .node()
+                    .dispatchEvent(new CustomEvent('brush-selection', {detail:{
+                        brushedData: vis.fullData
+                    }}));
+            }
 
         })
         .on('start', function(){
