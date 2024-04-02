@@ -15,20 +15,23 @@ class TimeChart {
 
         // Group data by hour and count the occurrences
         const hourCounts = d3.group(vis.data, d => d.hour);
-        let countsByHour = Array.from(hourCounts, ([hour, records]) => ({hour, count: records.length}));
-        countsByHour.sort((a, b) => d3.ascending(a.hour, b.hour)); // Sort by hour number
+        vis.countsByHour = Array.from(hourCounts, ([hour, records]) => ({hour, count: records.length}));
+        vis.countsByHour.sort((a, b) => d3.ascending(a.hour, b.hour)); // Sort by hour number
 
         // Set the dimensions and margins of the graph
         const margin = {top: 20, right: 20, bottom: 30, left: 40},
             width = 960 - margin.left - margin.right,
             height = 500 - margin.top - margin.bottom;
 
+        vis.height = height;
+        vis.hourCounts = hourCounts;
+
         // Prepare the hour labels for the x-axis
         const hourLabels = Array.from({length: 24}, (_, i) => `${i}:00`);
 
         // Set the ranges
         vis.xScale = d3.scaleBand().range([0, width]).padding(0.1).domain(hourLabels),
-        vis.yScale = d3.scaleLinear().range([height, 0]).domain([0, d3.max(countsByHour, d => d.count)]);
+        vis.yScale = d3.scaleLinear().range([height, 0]).domain([0, d3.max(vis.countsByHour, d => d.count)]);
 
         vis.svg = d3.select(vis.config.parentElement)
             .append('svg')
@@ -45,24 +48,13 @@ class TimeChart {
         vis.brush = d3.brushX()
             .extent([[0,0], [width, height]]);
 
-        // Append the rectangles for the bar chart
-        vis.chart.selectAll(".bar")
-            .data(countsByHour)
-            .enter().append("rect")
-            .attr("class", "bar")
-            .attr("x", d => vis.xScale(`${d.hour}:00`))
-            .attr("width", vis.xScale.bandwidth())
-            .attr("y", d => vis.yScale(d.count))
-            .attr("height", d => height - vis.yScale(d.count))
-            .attr("fill", "steelblue");
-
         // Add the x Axis
-        vis.chart.append("g")
+        vis.xAxisG = vis.chart.append("g")
             .attr("transform", `translate(0,${height})`)
             .call(d3.axisBottom(vis.xScale));
 
         // Add the y Axis
-        vis.chart.append("g")
+        vis.yAxisG = vis.chart.append("g")
             .call(d3.axisLeft(vis.yScale));
 
             // Add x axis label
@@ -85,12 +77,29 @@ class TimeChart {
 
     updateVis(){
         let vis = this;
+
+        vis.hourCounts = d3.group(vis.data, d => d.hour);
+        vis.countsByHour = Array.from(vis.hourCounts, ([hour, records]) => ({hour, count: records.length}));
+        vis.countsByHour.sort((a, b) => d3.ascending(a.hour, b.hour)); // Sort by hour number
     
+        vis.yScale.domain([0, d3.max(vis.countsByHour, d => d.count)]);
+
         vis.renderVis();
     }
 
     renderVis(){
         let vis = this;
+
+        // Append the rectangles for the bar chart
+        vis.chart.selectAll(".bar")
+            .data(vis.countsByHour)
+        .join('rect')
+            .attr("class", "bar")
+            .attr("x", d => vis.xScale(`${d.hour}:00`))
+            .attr("width", vis.xScale.bandwidth())
+            .attr("y", d => vis.yScale(d.count))
+            .attr("height", d => vis.height - vis.yScale(d.count))
+            .attr("fill", "steelblue");
 
         const tooltip = d3.select(".tooltip");
 
@@ -123,6 +132,8 @@ class TimeChart {
                 })
                 brush_element.dispatchEvent(new_event);
             });
+
+        vis.yAxisG.call(d3.axisLeft(vis.yScale));
         
         vis.brushG.call(vis.brush.on('end', function({selection}) {
             if (selection){
@@ -152,6 +163,8 @@ class TimeChart {
         })
         .on('start', function(){
             if (!vis.resettingBrush){
+                vis.data = vis.fullData;
+                vis.updateVis();
                 d3.select(vis.config.parentElement)
                     .node()
                     .dispatchEvent(new CustomEvent('brush-start', {}));
@@ -169,6 +182,7 @@ class TimeChart {
 
     updateFromBrush(brushedData){
         let vis = this;
+        console.log("updating");
 
         vis.updatingFromBrush = true;
         vis.data = brushedData;

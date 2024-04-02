@@ -22,6 +22,8 @@ class DurationChart {
             { key: '30min+', range: [1800, Infinity] }
         ];
 
+        vis.buckets = buckets;
+
         // Group data by these buckets
         vis.countsByDuration = buckets.map(bucket => {
             const count = vis.data.filter(d => d.encounter_length >= bucket.range[0] && d.encounter_length <= bucket.range[1]).length;
@@ -32,6 +34,8 @@ class DurationChart {
         const margin = {top: 20, right: 20, bottom: 30, left: 40},
             width = 960 - margin.left - margin.right,
             height = 500 - margin.top - margin.bottom;
+
+        vis.height = height;
 
         // Set the ranges
         vis.xScale = d3.scaleBand().range([0, width]).padding(0.1).domain(vis.countsByDuration.map(d => d.duration)),
@@ -52,24 +56,14 @@ class DurationChart {
         vis.brush = d3.brushX()
             .extent([[0,0], [width, height]]);
 
-        // Append the rectangles for the bar chart
-        vis.chart.selectAll(".bar")
-            .data(vis.countsByDuration)
-            .enter().append("rect")
-            .attr("class", "bar")
-            .attr("x", d => vis.xScale(d.duration))
-            .attr("width", vis.xScale.bandwidth())
-            .attr("y", d => vis.yScale(d.count))
-            .attr("height", d => height - vis.yScale(d.count))
-            .attr("fill", "steelblue");
 
         // Add the x Axis
-        vis.chart.append("g")
+        vis.xAxisG = vis.chart.append("g")
             .attr("transform", `translate(0,${height})`)
             .call(d3.axisBottom(vis.xScale));
 
         // Add the y Axis
-        vis.chart.append("g")
+        vis.yAxisG = vis.chart.append("g")
             .call(d3.axisLeft(vis.yScale));
 
             // Add x axis label
@@ -92,12 +86,31 @@ class DurationChart {
 
     updateVis(){
         let vis = this;
+
+        // Group data by these buckets
+        vis.countsByDuration = vis.buckets.map(bucket => {
+            const count = vis.data.filter(d => d.encounter_length >= bucket.range[0] && d.encounter_length <= bucket.range[1]).length;
+            return { duration: bucket.key, count: count, range: bucket.range};
+        });
+
+        vis.yScale.domain([0, d3.max(vis.countsByDuration, d => d.count)]);
     
         vis.renderVis();
     }
 
     renderVis(){
         let vis = this;
+
+        // Append the rectangles for the bar chart
+        vis.chart.selectAll(".bar")
+            .data(vis.countsByDuration)
+        .join('rect')
+            .attr("class", "bar")
+            .attr("x", d => vis.xScale(d.duration))
+            .attr("width", vis.xScale.bandwidth())
+            .attr("y", d => vis.yScale(d.count))
+            .attr("height", d => vis.height - vis.yScale(d.count))
+            .attr("fill", "steelblue");
 
         const tooltip = d3.select(".tooltip");
 
@@ -130,6 +143,8 @@ class DurationChart {
                 })
                 brush_element.dispatchEvent(new_event);
             });
+
+        vis.yAxisG.call(d3.axisLeft(vis.yScale));
         
         vis.brushG.call(vis.brush.on('end', function({selection}) {
             if (selection){
@@ -163,6 +178,8 @@ class DurationChart {
         })
         .on('start', function(){
             if (!vis.resettingBrush){
+                vis.data = vis.fullData;
+                vis.updateVis();
                 d3.select(vis.config.parentElement)
                     .node()
                     .dispatchEvent(new CustomEvent('brush-start', {}));

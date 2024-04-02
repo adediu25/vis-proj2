@@ -22,6 +22,8 @@ class ShapeChart {
         const margin = {top: 20, right: 20, bottom: 30, left: 40},
             width = 960 - margin.left - margin.right,
             height = 500 - margin.top - margin.bottom;
+
+        vis.height = height;
   
         // Set the ranges
         vis.xScale = d3.scaleBand().range([0, width]).padding(0.1).domain(countsByShape.map(d => d.shape)),
@@ -42,19 +44,9 @@ class ShapeChart {
         vis.brush = d3.brushX()
             .extent([[0,0], [width, height]]);
   
-        // Append the rectangles for the bar chart
-        vis.chart.selectAll(".bar")
-            .data(countsByShape)
-            .enter().append("rect")
-            .attr("class", "bar")
-            .attr("x", d => vis.xScale(d.shape))
-            .attr("width", vis.xScale.bandwidth())
-            .attr("y", d => vis.yScale(d.count))
-            .attr("height", d => height - vis.yScale(d.count))
-            .attr("fill", "steelblue");
   
         // Add the x Axis
-        vis.chart.append("g")
+        vis.xAxisG = vis.chart.append("g")
         .attr("transform", `translate(0,${height})`)
         .call(d3.axisBottom(vis.xScale))
         .selectAll("text")
@@ -62,9 +54,9 @@ class ShapeChart {
             .attr("dx", "-.8em") 
             .attr("dy", ".15em") 
             .attr("transform", "rotate(-90)"); ;
-            // Add the y Axis
-            vis.chart.append("g")
-                .call(d3.axisLeft(vis.yScale));
+        // Add the y Axis
+        vis.yAxisG = vis.chart.append("g")
+            .call(d3.axisLeft(vis.yScale));
   
       // Add x axis label
         vis.svg.append("text")
@@ -86,12 +78,29 @@ class ShapeChart {
 
     updateVis(){
         let vis = this;
+
+        vis.ufoShapeCounts = d3.group(vis.data, d => d.ufo_shape);
+        vis.countsByShape = Array.from(vis.ufoShapeCounts, ([shape, records]) => ({shape, count: records.length}));
+        vis.countsByShape.sort((a, b) => d3.descending(a.count, b.count)); // Sort shapes by count
     
+        vis.yScale.domain([0, d3.max(vis.countsByShape, d => d.count)]);
+
         vis.renderVis();
     }
 
     renderVis(){
         let vis = this;
+
+        // Append the rectangles for the bar chart
+        vis.chart.selectAll(".bar")
+            .data(vis.countsByShape)
+        .join("rect")
+            .attr("class", "bar")
+            .attr("x", d => vis.xScale(d.shape))
+            .attr("width", vis.xScale.bandwidth())
+            .attr("y", d => vis.yScale(d.count))
+            .attr("height", d => vis.height - vis.yScale(d.count))
+            .attr("fill", "steelblue");
 
         const tooltip = d3.select(".tooltip");
 
@@ -125,6 +134,8 @@ class ShapeChart {
                 brush_element.dispatchEvent(new_event);
             });
         
+        vis.yAxisG.call(d3.axisLeft(vis.yScale))
+
         vis.brushG.call(vis.brush.on('end', function({selection}) {
             if (selection){
                 const [x0, x1] = selection;
@@ -141,7 +152,7 @@ class ShapeChart {
             if(!vis.resettingBrush && !vis.updatingFromBrush && selection){
                 const [x0, x1] = selection;
 
-                let filteredData = vis.data.filter(d => x0 <= vis.xScale(d.shape) + vis.xScale.bandwidth() && vis.xScale(d.shape) < x1);
+                let filteredData = vis.data.filter(d => x0 <= vis.xScale(d.ufo_shape) + vis.xScale.bandwidth() && vis.xScale(d.ufo_shape) < x1);
 
                 d3.select(vis.config.parentElement)
                     .node()
@@ -153,6 +164,8 @@ class ShapeChart {
         })
         .on('start', function(){
             if (!vis.resettingBrush){
+                vis.data = vis.fullData;
+                vis.updateVis();
                 d3.select(vis.config.parentElement)
                     .node()
                     .dispatchEvent(new CustomEvent('brush-start', {}));
@@ -161,6 +174,7 @@ class ShapeChart {
     }
 
     resetBrush(){
+        console.log('resetting');
         let vis = this;
         vis.resettingBrush = true;
         vis.brushG.call(vis.brush.clear);

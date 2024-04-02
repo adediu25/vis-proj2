@@ -60,7 +60,7 @@ d3.csv('data/ufo_sightings.csv')
       leafletMap.updateVis();
     }
 
-    visList = [timeline, shapeChart, monthChart, timeChart, durationChart];
+    visList = [leafletMap, timeline, shapeChart, monthChart, timeChart, durationChart];
 
   })
   .catch(error => console.error(error));

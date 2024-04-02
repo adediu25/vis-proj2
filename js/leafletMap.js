@@ -12,6 +12,9 @@ class LeafletMap {
     }
     this.data = _data;
     this.colorBy = _colorBy;
+    this.fullData = this.data;
+    this.resettingBrush = false;
+    this.updatingFromBrush = false;
     this.initVis();
   }
   
@@ -111,21 +114,6 @@ class LeafletMap {
 
     vis.layerControl = L.control.layers(vis.base_layers, {}).addTo(vis.theMap);
 
-    // Function to format encounter length
-    function formatEncounterLength(seconds) {
-      if (seconds < 60) {
-        return `${seconds} second(s)`;
-      } else if (seconds < 3600) {
-        const minutes = Math.floor(seconds / 60);
-        const remainingSeconds = seconds % 60;
-        return `${minutes} minute(s) ${remainingSeconds} second(s)`;
-      } else {
-        const hours = Math.floor(seconds / 3600);
-        const remainingMinutes = Math.floor((seconds % 3600) / 60);
-        return `${hours} hour(s) ${remainingMinutes} minute(s)`;
-      }
-    }
-
     //initialize svg for d3 to add to map
     L.svg({clickable:true}).addTo(vis.theMap)// we have to make the svg layer clickable
     vis.overlay = d3.select(vis.theMap.getPanes().overlayPane)
@@ -158,7 +146,7 @@ class LeafletMap {
                                       Year: ${d.year}<br/>
                                       Month: ${d.month}<br/>
                                       Time of Day (military hour): ${d.tod}<br/>
-                                      Encounter Length: ${formatEncounterLength(d.encounter_length)}<br/></div>`);
+                                      Encounter Length: ${vis.formatEncounterLength(d.encounter_length)}<br/></div>`);
 
                           })
                         .on('mousemove', (event) => {
@@ -197,6 +185,58 @@ class LeafletMap {
 
   updateVis() {
     let vis = this;
+
+    //these are the city locations, displayed as a set of dots 
+    vis.Dots = vis.svg.selectAll('circle')
+                    .data(vis.data.filter(d => d.latitude && d.longitude))
+                    .join('circle')
+                        .attr("fill", d => d.colorFill) 
+                        .attr("stroke", "black")
+                        //Leaflet has to take control of projecting points. Here we are feeding the latitude and longitude coordinates to
+                        //leaflet so that it can project them on the coordinates of the view. Notice, we have to reverse lat and lon.
+                        //Finally, the returned conversion produces an x and y point. We have to select the the desired one using .x or .y
+                        .attr("cx", d => vis.theMap.latLngToLayerPoint([d.latitude,d.longitude]).x)
+                        .attr("cy", d => vis.theMap.latLngToLayerPoint([d.latitude,d.longitude]).y) 
+                        .attr("r", 3)
+                        .on('mouseover', function(event,d) { //function to add mouseover event
+                            d3.select(this).transition() //D3 selects the object we have moused over in order to perform operations on it
+                              .duration('150') //how long we are transitioning between the two states (works like keyframes)
+                              .attr("fill", "red") //change the fill
+                              .attr('r', vis.radiusSize + 1); //change radius
+
+                            //create a tool tip
+                            d3.select('#tooltip')
+                                .style('opacity', 1)
+                                .style('z-index', 1000000)
+                                  // Format number with million and thousand separator
+                                .html(`<div class="tooltip-label">City: ${d.city_area}<br/>
+                                      Year: ${d.year}<br/>
+                                      Month: ${d.month}<br/>
+                                      Time of Day (military hour): ${d.tod}<br/>
+                                      Encounter Length: ${vis.formatEncounterLength(d.encounter_length)}<br/></div>`);
+
+                          })
+                        .on('mousemove', (event) => {
+                            //position the tooltip
+                            d3.select('#tooltip')
+                             .style('left', (event.pageX + 10) + 'px')   
+                              .style('top', (event.pageY + 10) + 'px');
+                         })              
+                        .on('mouseleave', function() { //function to add mouseover event
+                            d3.select(this).transition() //D3 selects the object we have moused over in order to perform operations on it
+                              .duration('150') //how long we are transitioning between the two states (works like keyframes)
+                              .attr("fill", d => d.colorFill) //change the fill
+                              .attr('r', 3) //change radius
+
+                            d3.select('#tooltip').style('opacity', 0);//turn off the tooltip
+
+                          })
+                        .on('click', (event, d) => { //experimental feature I was trying- click on point and then fly to it
+                           // vis.newZoom = vis.theMap.getZoom()+2;
+                           // if( vis.newZoom > 18)
+                           //  vis.newZoom = 18; 
+                           // vis.theMap.flyTo([d.latitude, d.longitude], vis.newZoom);
+                          });
 
     // Update the color scale and colors of data points based on the selected option
     switch (vis.colorBy) {
@@ -289,6 +329,40 @@ class LeafletMap {
 
     //not using right now... 
  
+  }
+
+  resetBrush(){
+    return
+    
+    let vis = this;
+    vis.resettingBrush = true;
+    vis.brushG.call(vis.brush.clear);
+    vis.updateVis();
+    vis.resettingBrush = false;
+  }
+
+  updateFromBrush(brushedData){
+    let vis = this;
+
+    vis.updatingFromBrush = true;
+    vis.data = brushedData;
+    vis.updateVis();
+    vis.updatingFromBrush = false;
+    vis.data = vis.fullData;
+  }
+
+  formatEncounterLength(seconds) {
+    if (seconds < 60) {
+      return `${seconds} second(s)`;
+    } else if (seconds < 3600) {
+      const minutes = Math.floor(seconds / 60);
+      const remainingSeconds = seconds % 60;
+      return `${minutes} minute(s) ${remainingSeconds} second(s)`;
+    } else {
+      const hours = Math.floor(seconds / 3600);
+      const remainingMinutes = Math.floor((seconds % 3600) / 60);
+      return `${hours} hour(s) ${remainingMinutes} minute(s)`;
+    }
   }
 
 }

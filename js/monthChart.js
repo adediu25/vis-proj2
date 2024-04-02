@@ -23,6 +23,8 @@ class MonthChart {
             width = 960 - margin.left - margin.right,
             height = 500 - margin.top - margin.bottom;
 
+        vis.height = height;
+
         // Prepare the month names for the x-axis labels
         vis.monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
@@ -45,24 +47,13 @@ class MonthChart {
         vis.brush = d3.brushX()
             .extent([[0,0], [width, height]]);
 
-        // Append the rectangles for the bar chart
-        vis.chart.selectAll(".bar")
-            .data(countsByMonth)
-            .enter().append("rect")
-            .attr("class", "bar")
-            .attr("x", d => vis.xScale(vis.monthNames[d.month]))
-            .attr("width", vis.xScale.bandwidth())
-            .attr("y", d => vis.yScale(d.count))
-            .attr("height", d => height - vis.yScale(d.count))
-            .attr("fill", "steelblue");
-
         // Add the x Axis
-        vis.chart.append("g")
+        vis.xAxisG = vis.chart.append("g")
             .attr("transform", `translate(0,${height})`)
             .call(d3.axisBottom(vis.xScale));
 
         // Add the y Axis
-        vis.chart.append("g")
+        vis.yAxisG = vis.chart.append("g")
             .call(d3.axisLeft(vis.yScale));
 
         // Add x axis label
@@ -85,12 +76,30 @@ class MonthChart {
     
     updateVis(){
         let vis = this;
+
+        // Group data by month and count the occurrences
+        vis.monthCounts = d3.group(vis.data, d => d.month);
+        vis.countsByMonth = Array.from(vis.monthCounts, ([month, records]) => ({month, count: records.length}));
+        vis.countsByMonth.sort((a, b) => d3.ascending(a.month, b.month)); // Sort by month number
     
+        vis.yScale.domain([0, d3.max(vis.countsByMonth, d => d.count)])
+
         vis.renderVis();
     }
 
     renderVis(){
         let vis = this;
+
+        // Append the rectangles for the bar chart
+        vis.chart.selectAll(".bar")
+            .data(vis.countsByMonth)
+        .join('rect')
+            .attr("class", "bar")
+            .attr("x", d => vis.xScale(vis.monthNames[d.month]))
+            .attr("width", vis.xScale.bandwidth())
+            .attr("y", d => vis.yScale(d.count))
+            .attr("height", d => vis.height - vis.yScale(d.count))
+            .attr("fill", "steelblue");
 
         const tooltip = d3.select(".tooltip");
 
@@ -123,6 +132,8 @@ class MonthChart {
                 })
                 brush_element.dispatchEvent(new_event);
             });
+
+        vis.yAxisG.call(d3.axisLeft(vis.yScale));
         
         vis.brushG.call(vis.brush.on('end', function({selection}) {
             if (selection){
@@ -152,6 +163,8 @@ class MonthChart {
         })
         .on('start', function(){
             if (!vis.resettingBrush){
+                vis.data = vis.fullData;
+                vis.updateVis();
                 d3.select(vis.config.parentElement)
                     .node()
                     .dispatchEvent(new CustomEvent('brush-start', {}));

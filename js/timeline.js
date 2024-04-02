@@ -24,6 +24,8 @@ class Timeline {
             width = 960 - margin.left - margin.right,
             height = 500 - margin.top - margin.bottom;
 
+        vis.height = height;
+
         // Set the ranges and domains
         vis.xScale = d3.scaleBand().range([0, width]).padding(0.1).domain(countsByYear.map(d => d.year)),
         vis.yScale = d3.scaleLinear().range([height, 0]).domain([0, d3.max(countsByYear, d => d.count)]);
@@ -43,20 +45,8 @@ class Timeline {
         vis.brush = d3.brushX()
             .extent([[0,0], [width, height]]);
 
-        // Append the rectangles for the bar chart
-        vis.chart.selectAll(".bar")
-            .data(countsByYear)
-            .enter().append("rect")
-            .attr("class", "bar")
-            .attr("x", d => vis.xScale(d.year))
-            .attr("width", vis.xScale.bandwidth())
-            .attr("y", d => vis.yScale(d.count))
-            .attr("height", d => height - vis.yScale(d.count))
-            .attr("fill", "steelblue");
-
         // Add the x Axis
-        // Add the x Axis
-        vis.chart.append("g")
+        vis.xAxisG = vis.chart.append("g")
             .attr("transform", `translate(0,${height})`)
             .call(d3.axisBottom(vis.xScale).tickFormat(d3.format("d")))
             .selectAll("text")
@@ -67,7 +57,7 @@ class Timeline {
 
 
         // Add the y Axis
-        vis.chart.append("g")
+        vis.yAxisG = vis.chart.append("g")
             .call(d3.axisLeft(vis.yScale));
 
         // Add x axis label
@@ -92,11 +82,29 @@ class Timeline {
     updateVis(){
         let vis = this;
 
+        // Aggregate data by year and sort
+        const sightingsByYear = d3.group(vis.data, d => d.year);
+        vis.countsByYear = Array.from(sightingsByYear, ([year, records]) => ({year, count: records.length}));
+        vis.countsByYear.sort((a, b) => a.year - b.year);
+
+        vis.yScale.domain([0, d3.max(vis.countsByYear, d => d.count)]);
+
         vis.renderVis();
     }
 
     renderVis(){
         let vis = this;
+
+        // Append the rectangles for the bar chart
+        vis.chart.selectAll(".bar")
+            .data(vis.countsByYear)
+        .join('rect')
+            .attr("class", "bar")
+            .attr("x", d => vis.xScale(d.year))
+            .attr("width", vis.xScale.bandwidth())
+            .attr("y", d => vis.yScale(d.count))
+            .attr("height", d => vis.height - vis.yScale(d.count))
+            .attr("fill", "steelblue");
 
         const tooltip = d3.select(".tooltip");
 
@@ -130,6 +138,8 @@ class Timeline {
             brush_element.dispatchEvent(new_event);
         });
 
+        vis.yAxisG.call(d3.axisLeft(vis.yScale));
+
         vis.brushG.call(vis.brush.on('end', function({selection}) {
             if (selection){
                 const [x0, x1] = selection;
@@ -158,6 +168,8 @@ class Timeline {
         })
         .on('start', function(){
             if (!vis.resettingBrush){
+                vis.data = vis.fullData;
+                vis.updateVis();
                 d3.select(vis.config.parentElement)
                     .node()
                     .dispatchEvent(new CustomEvent('brush-start', {}));
