@@ -43,10 +43,15 @@ d3.csv('data/ufo_sightings.csv')
     leafletMap = new LeafletMap({ parentElement: '#leaflet-map', legendElement: '#map-legend'}, data, colorBy);
 
     timeline = new Timeline({parentElement: '#timeline'}, data);
-    shapeChart = new ShapeChart({parentElement: '#shape'}, data);
-    monthChart = new MonthChart({parentElement: '#month'}, data);
-    timeChart = new TimeChart({parentElement: '#time'}, data);
-    durationChart = new DurationChart({parentElement: '#duration'}, data);
+    // Wrap the two charts per row in a container div
+    const chartRow1 = d3.select("body").append("div").attr("class", "chart-row");
+    const chartRow2 = d3.select("body").append("div").attr("class", "chart-row");
+
+    // Append the charts to their respective container divs
+    shapeChart = new ShapeChart({parentElement: chartRow1.append("div").attr("id", "shape1").node()}, data);
+    monthChart = new MonthChart({parentElement: chartRow1.append("div").attr("id", "month1").node()}, data);
+    timeChart = new TimeChart({parentElement: chartRow2.append("div").attr("id", "time1").node()}, data);
+    durationChart = new DurationChart({parentElement: chartRow2.append("div").attr("id", "duration1").node()}, data);
 
     // Function to update the scatterplot class
     function updateMapColor() {

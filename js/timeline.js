@@ -17,7 +17,7 @@ class Timeline {
 
         // Set the dimensions and margins of the graph
         const margin = {top: 20, right: 20, bottom: 30, left: 40},
-            width = 960 - margin.left - margin.right,
+            width = window.innerWidth - margin.left - margin.right - 75,
             height = 500 - margin.top - margin.bottom;
 
         // Set the ranges and domains
@@ -25,6 +25,8 @@ class Timeline {
             y = d3.scaleLinear().range([height, 0]).domain([0, d3.max(countsByYear, d => d.count)]);
 
         vis.svg = d3.select(vis.config.parentElement)
+            .append('div')
+            .style("text-align", "center")
             .append('svg')
             .attr("width", width + margin.left + margin.right)
             .attr("height", height + margin.top + margin.bottom);
