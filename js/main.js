@@ -1,3 +1,5 @@
+let leafletMap, timeline, shapeChart, monthChart, timeChart, durationChart;
+
 d3.csv('data/ufo_sightings.csv')
 // d3.csv('data/ufoSample.csv')
 .then(data => {
@@ -26,6 +28,10 @@ d3.csv('data/ufo_sightings.csv')
       d.date_time = parseTime(d.date_time);
       // Group into 10-year intervals by rounding down the year
       d.decade = Math.floor(d.date_time.getFullYear() / 5) * 5;
+
+      const date = new Date(d.date_time);
+      d.hour = date.getHours(); // getHours to get the hour of the sighting
+      d.month = date.getMonth();
     });
     
     // Initialize the colorBy value
@@ -59,5 +65,22 @@ d3.csv('data/ufo_sightings.csv')
       leafletMap.updateVis();
     }
 
+    visList = [leafletMap, timeline, shapeChart, monthChart, timeChart, durationChart];
+
   })
   .catch(error => console.error(error));
+
+// listen for a custom event from html elements which contain the visualizations
+// event is triggered by a brush start 
+// then call for brush to be reset on every other visualization
+
+d3.selectAll('.parent').on('brush-start', function(event){
+  visList.filter(d => d.config.parentElement.slice(1) != event.srcElement.id).forEach(function(d) {d.resetBrush();});
+});
+
+d3.selectAll('.parent').on('brush-selection', function(event){
+  visList.filter(d => d.config.parentElement.slice(1) != event.srcElement.id)
+      .forEach(function(d) {
+          d.updateFromBrush(event.detail.brushedData);
+  });
+});

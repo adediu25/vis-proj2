@@ -4,6 +4,9 @@ class Timeline {
             parentElement: _config.parentElement,
         };
         this.data = _data;
+        this.fullData = this.data;
+        this.resettingBrush = false;
+        this.updatingFromBrush = false;
         this.initVis();
     }
 
@@ -15,14 +18,17 @@ class Timeline {
         let countsByYear = Array.from(sightingsByYear, ([year, records]) => ({year, count: records.length}));
         countsByYear.sort((a, b) => a.year - b.year);
 
+
         // Set the dimensions and margins of the graph
         const margin = {top: 20, right: 20, bottom: 30, left: 40},
             width = window.innerWidth - margin.left - margin.right - 75,
             height = 500 - margin.top - margin.bottom;
 
+        vis.height = height;
+
         // Set the ranges and domains
-        const x = d3.scaleBand().range([0, width]).padding(0.1).domain(countsByYear.map(d => d.year)),
-            y = d3.scaleLinear().range([height, 0]).domain([0, d3.max(countsByYear, d => d.count)]);
+        vis.xScale = d3.scaleBand().range([0, width]).padding(0.1).domain(countsByYear.map(d => d.year)),
+        vis.yScale = d3.scaleLinear().range([height, 0]).domain([0, d3.max(countsByYear, d => d.count)]);
 
         vis.svg = d3.select(vis.config.parentElement)
             .append('div')
@@ -33,24 +39,18 @@ class Timeline {
 
         vis.chart = vis.svg
             .append("g")
-            .attr("transform", `translate(${margin.left},${margin.top})`);
+            .attr("transform", `translate(${margin.left},${margin.top})`); 
+        
+        vis.brushG = vis.chart.append('g')
+            .attr('class', 'brush')
 
-        // Append the rectangles for the bar chart
-        vis.chart.selectAll(".bar")
-            .data(countsByYear)
-            .enter().append("rect")
-            .attr("class", "bar")
-            .attr("x", d => x(d.year))
-            .attr("width", x.bandwidth())
-            .attr("y", d => y(d.count))
-            .attr("height", d => height - y(d.count))
-            .attr("fill", "#3498db");
+        vis.brush = d3.brushX()
+            .extent([[0,0], [width, height]]);
 
         // Add the x Axis
-        // Add the x Axis
-        vis.chart.append("g")
+        vis.xAxisG = vis.chart.append("g")
             .attr("transform", `translate(0,${height})`)
-            .call(d3.axisBottom(x).tickFormat(d3.format("d")))
+            .call(d3.axisBottom(vis.xScale).tickFormat(d3.format("d")))
             .selectAll("text")
             .style("text-anchor", "end") 
             .attr("dx", "-.8em") 
@@ -59,8 +59,8 @@ class Timeline {
 
 
         // Add the y Axis
-        vis.chart.append("g")
-            .call(d3.axisLeft(y));
+        vis.yAxisG = vis.chart.append("g")
+            .call(d3.axisLeft(vis.yScale));
 
         // Add x axis label
         vis.svg.append("text")
@@ -77,10 +77,42 @@ class Timeline {
             .style("text-anchor", "middle")
             .text("Number of Sightings");
 
-        
-    const tooltip = d3.select(".tooltip");
 
-    vis.svg.selectAll(".bar")
+        vis.updateVis();
+    }
+
+    updateVis(){
+        let vis = this;
+
+        // Aggregate data by year and sort
+        const sightingsByYear = d3.group(vis.data, d => d.year);
+        vis.countsByYear = Array.from(sightingsByYear, ([year, records]) => ({year, count: records.length}));
+        vis.countsByYear.sort((a, b) => a.year - b.year);
+
+        vis.yScale.domain([0, d3.max(vis.countsByYear, d => d.count)]);
+
+        vis.renderVis();
+    }
+
+    renderVis(){
+        let vis = this;
+
+        // Append the rectangles for the bar chart
+        vis.chart.selectAll(".bar")
+            .data(vis.countsByYear)
+        .join('rect')
+            .attr("class", "bar")
+            .attr("x", d => vis.xScale(d.year))
+            .attr("width", vis.xScale.bandwidth())
+            .attr("y", d => vis.yScale(d.count))
+            .attr("height", d => vis.height - vis.yScale(d.count))
+            .attr("fill", "steelblue");
+
+        const tooltip = d3.select(".tooltip");
+
+        const bars = vis.chart.selectAll('.bar');
+
+        vis.svg.selectAll(".bar")
         .on("mouseover", (event, d) => {
             tooltip.transition()
                 .duration(200)
@@ -93,7 +125,76 @@ class Timeline {
             tooltip.transition()
                 .duration(500)
                 .style("opacity", 0);
+        })
+        .on('mousedown', (event, d) => {
+            let brush_element = vis.svg.select('.overlay').node();
+            let new_event = new MouseEvent('mousedown', {
+                bubbles: true,
+                cancelable: true,
+                view: window,
+                pageX: event.pageX,
+                pageY: event.pageY,
+                clientX: event.clientX,
+                clientY: event.clientY
+            })
+            brush_element.dispatchEvent(new_event);
         });
+
+        vis.yAxisG.call(d3.axisLeft(vis.yScale));
+
+        vis.brushG.call(vis.brush.on('end', function({selection}) {
+            if (selection){
+                const [x0, x1] = selection;
+                bars
+                    .style("fill", "lightgray")
+                    .filter(d => x0 <= vis.xScale(d.year) + vis.xScale.bandwidth() && vis.xScale(d.year) < x1)
+                    .style("fill", "steelblue")
+                    .data();
+            }
+            else {
+                bars.style("fill", "steelblue");
+            }
+            
+            if(!vis.resettingBrush && !vis.updatingFromBrush && selection){
+                const [x0, x1] = selection;
+
+                let filteredData = vis.data.filter(d => x0 <= vis.xScale(d.year) + vis.xScale.bandwidth() && vis.xScale(d.year) < x1);
+
+                d3.select(vis.config.parentElement)
+                    .node()
+                    .dispatchEvent(new CustomEvent('brush-selection', {detail:{
+                        brushedData: filteredData
+                    }}))
+            }
+
+        })
+        .on('start', function(){
+            if (!vis.resettingBrush){
+                vis.data = vis.fullData;
+                vis.updateVis();
+                d3.select(vis.config.parentElement)
+                    .node()
+                    .dispatchEvent(new CustomEvent('brush-start', {}));
+            }
+        }));
+    }
+
+    resetBrush(){
+        let vis = this;
+        vis.resettingBrush = true;
+        vis.brushG.call(vis.brush.clear);
+        vis.updateVis();
+        vis.resettingBrush = false;
+    }
+
+    updateFromBrush(brushedData){
+        let vis = this;
+
+        vis.updatingFromBrush = true;
+        vis.data = brushedData;
+        vis.updateVis();
+        vis.updatingFromBrush = false;
+        vis.data = vis.fullData;
     }
 }
 
