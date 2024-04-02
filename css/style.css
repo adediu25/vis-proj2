@@ -24,3 +24,13 @@ body {
   font-size: 10px;
   color: #888;
 }
+
+.chart-row {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 20px;
+}
+
+.chart-row > div {
+    width: 45%; /* Adjust as needed */
+}
