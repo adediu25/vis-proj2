@@ -18,11 +18,10 @@ class Timeline {
         let countsByYear = Array.from(sightingsByYear, ([year, records]) => ({year, count: records.length}));
         countsByYear.sort((a, b) => a.year - b.year);
 
-
         // Set the dimensions and margins of the graph
-        const margin = {top: 20, right: 20, bottom: 30, left: 40},
+        const margin = {top: 20, right: 40, bottom: 50, left: 60},
             width = window.innerWidth - margin.left - margin.right - 75,
-            height = 500 - margin.top - margin.bottom;
+            height = 300 - margin.top - margin.bottom;
 
         vis.height = height;
 
@@ -50,11 +49,11 @@ class Timeline {
         // Add the x Axis
         vis.xAxisG = vis.chart.append("g")
             .attr("transform", `translate(0,${height})`)
-            .call(d3.axisBottom(vis.xScale).tickFormat(d3.format("d")))
+            .call(d3.axisBottom(vis.xScale))
             .selectAll("text")
             .style("text-anchor", "end") 
             .attr("dx", "-.8em") 
-            .attr("dy", ".15em") 
+            .attr("dy", "-.5em") 
             .attr("transform", "rotate(-90)"); 
 
 
@@ -75,6 +74,7 @@ class Timeline {
             .attr("x", 0 - (height / 2) - margin.top)
             .attr("dy", "1em")
             .style("text-anchor", "middle")
+            .style('font-size', '14px')
             .text("Number of Sightings");
 
 
@@ -113,7 +113,7 @@ class Timeline {
         const bars = vis.chart.selectAll('.bar');
 
         vis.svg.selectAll(".bar")
-        .on("mouseover", (event, d) => {
+        .on("mousemove", (event, d) => {
             tooltip.transition()
                 .duration(200)
                 .style("opacity", .9);
@@ -121,7 +121,7 @@ class Timeline {
                 .style("left", (event.pageX - 60) + "px")
                 .style("top", (event.pageY - 70) + "px");
         })
-        .on("mouseout", () => {
+        .on("mouseleave", () => {
             tooltip.transition()
                 .duration(500)
                 .style("opacity", 0);
