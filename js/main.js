@@ -3,12 +3,14 @@ let leafletMap, timeline, shapeChart, monthChart, timeChart, durationChart, visL
 // Get the search bar and button elements
 const searchBar = document.getElementById("word-search");
 const searchButton = document.getElementById("search-button");
+const resetButton = document.getElementById("reset-button");
 
 // Get the full data and inverted index data
 let data, invertedIndexData;
 
 Promise.all([
   d3.csv('data/ufo_sightings.csv'),
+  // d3.csv('data/ufoSample.csv'),
   d3.json('data/inverted_index_data.json')
 ])
 .then(([_data, _inverted_index_data]) => {
@@ -72,12 +74,12 @@ Promise.all([
 
     timeline = new Timeline({parentElement: '#timeline'}, data);
     // Wrap the two charts per row in a container div
-    const chartRow1 = d3.select("body").append("div").attr("class", "chart-row");
-    const chartRow2 = d3.select("body").append("div").attr("class", "chart-row");
+    // const chartRow1 = d3.select("body").append("div").attr("class", "chart-row");
+    // const chartRow2 = d3.select("body").append("div").attr("class", "chart-row");
 
     // Append the charts to their respective container divs
     shapeChart = new ShapeChart({parentElement: '#shape1'}, data);
-    monthChart = new MonthChart({parentElement: 'month1'}, data);
+    monthChart = new MonthChart({parentElement: '#month1'}, data);
     timeChart = new TimeChart({parentElement: '#time1'}, data);
     durationChart = new DurationChart({parentElement: '#duration1'}, data);
     wordCloud = new WordCloud({parentElement: '#wordcloud'}, invertedIndexData, data);
@@ -98,7 +100,7 @@ Promise.all([
 // then call for brush to be reset on every other visualization
 
 d3.selectAll('.parent').on('brush-start', function(event){
-  visList.forEach(d => console.log(d.config.parentElement))
+  searchBar.value='';
   visList.filter(d => d.config.parentElement.slice(1) != event.srcElement.id).forEach(function(d) {d.resetBrush();});
 });
 
@@ -127,6 +129,11 @@ searchButton.addEventListener("click", () => {
 
   // If the search bar is not empty, proceed with the search
   if (searchTerm !== "") {
+    // reset all charts
+    d3.select('#wordcloud')
+      .node()
+      .dispatchEvent(new CustomEvent('brush-start', {}));
+
     // Find the word object for the search term in the inverted index data
     const wordObj = invertedIndexData.find(wordObj => wordObj.text == searchTerm);
 
@@ -135,6 +142,12 @@ searchButton.addEventListener("click", () => {
 
         // Print the filtered data
         console.log(`Search Box - Data associated with '${searchTerm}':`, filteredData);
+        d3.select('#wordcloud')
+                    .node()
+                    .dispatchEvent(new CustomEvent('brush-selection', {detail:{
+                        brushedData: filteredData
+                    }}));
+
     } else {
         // If the word object is not found, print a message
         console.log(`Search Box -No data associated with '${searchTerm}'`);
@@ -165,5 +178,25 @@ searchButton.addEventListener("click", () => {
           document.body.removeChild(popup);
         }, 1500);
     }
+    searchBar.value = searchTerm;
   }
+});
+
+// resets other visualizations
+resetButton.addEventListener("click", () => {
+  // reset all charts
+  d3.select('#wordcloud')
+    .node()
+    .dispatchEvent(new CustomEvent('brush-start', {}));
+
+  leafletMap.reset();
+
+  searchBar.value = '';
+
+
+  // d3.select('#wordcloud')
+  //   .node()
+  //   .dispatchEvent(new CustomEvent('brush-selection', {detail:{
+  //       brushedData: data
+  //   }}));
 });

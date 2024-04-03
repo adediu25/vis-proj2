@@ -50,8 +50,21 @@ class WordCloud {
             .attr("transform", d => "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")")
             .text(d => d.text)
             .on("click", (event, d) => {
+                // reset all charts
+                d3.select(this.config.parentElement)
+                    .node()
+                    .dispatchEvent(new CustomEvent('brush-start', {}));
+
+                // set search box to word clicked on
+                document.getElementById("word-search").value = d.text;
+
                 let filteredData = d.indexes.map(index => this.fullData[index]);
                 console.log("WordCloud - Data associated with '" + d.text + "':", filteredData);
+                d3.select(this.config.parentElement)
+                    .node()
+                    .dispatchEvent(new CustomEvent('brush-selection', {detail:{
+                        brushedData: filteredData
+                    }}));
             });
     }
 }
