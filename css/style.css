@@ -34,3 +34,18 @@ body {
 .chart-row > div {
     width: 45%; /* Adjust as needed */
 }
+
+.map-wordcloud-container {
+  display: flex;
+}
+
+#wordcloud-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-left: 20px; /* adjust as needed */
+}
+
+#wordcloud {
+  padding-top: 20px; /* adjust as needed */
+}
