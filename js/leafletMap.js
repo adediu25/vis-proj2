@@ -31,7 +31,7 @@ class LeafletMap {
       case 'year':
         vis.colorScale = d3.scaleSequential()
           .domain(d3.extent(vis.data, d => d.year))
-          .interpolator(d3.interpolateRainbow);
+          .interpolator(d3.interpolateOranges);
         vis.legendTitle = 'Year';
         break;
       case 'month':
@@ -44,18 +44,18 @@ class LeafletMap {
         vis.colorScale = d3.scaleSequential()
           .domain([0, 23])
           .interpolator(d3.interpolateRainbow);
-        vis.legendTitle = 'Time of Day';
+        vis.legendTitle = 'Time of Day (24 hr)';
         break;
       case 'encounter_length':
         vis.colorScale = d3.scaleThreshold()
           .domain([60, 300, 600, 1800, 3600, 21600, 43200, 86400])
-          .range(d3.schemeCategory10.slice(0,8));
-        vis.legendTitle = 'Encounter Length';
+          .range(d3.schemeOranges[8]);
+        vis.legendTitle = 'Encounter Length (seconds)';
         break;
       default:
         vis.colorScale = d3.scaleSequential()
           .domain(d3.extent(vis.data, d => d.year))
-          .interpolator(d3.interpolateRainbow);
+          .interpolator(d3.interpolateOranges);
           vis.legendTitle = 'Year';
     }
 
@@ -150,7 +150,7 @@ class LeafletMap {
                                 .html(`<div class="tooltip-label">City: ${d.city_area}<br/>
                                       Year: ${d.year}<br/>
                                       Month: ${d.month}<br/>
-                                      Time of Day (military hour): ${d.tod}<br/>
+                                      Time of Day (24h): ${d.tod}<br/>
                                       Encounter Length: ${vis.formatEncounterLength(d.encounter_length)}<br/></div>`);
 
                           })
@@ -217,7 +217,7 @@ class LeafletMap {
                                 .html(`<div class="tooltip-label">City: ${d.city_area}<br/>
                                       Year: ${d.year}<br/>
                                       Month: ${d.month}<br/>
-                                      Time of Day (military hour): ${d.tod}<br/>
+                                      Time of Day (24h): ${d.tod}<br/>
                                       Encounter Length: ${vis.formatEncounterLength(d.encounter_length)}<br/></div>`);
 
                           })
@@ -248,7 +248,7 @@ class LeafletMap {
       case 'year':
         vis.colorScale = d3.scaleSequential()
           .domain(d3.extent(vis.data, d => d.year))
-          .interpolator(d3.interpolateRainbow);
+          .interpolator(d3.interpolateOranges);
         vis.legendTitle = 'Year';
         break;
       case 'month':
@@ -261,18 +261,18 @@ class LeafletMap {
         vis.colorScale = d3.scaleSequential()
           .domain([0, 24]) // Time of day ranges from 0 to 24
           .interpolator(d3.interpolateRainbow);
-        vis.legendTitle = 'Time of Day (military hour)';
+        vis.legendTitle = 'Time of Day (24h)';
         break;
       case 'encounter_length':
         vis.colorScale = d3.scaleThreshold()
           .domain([60, 300, 600, 1800, 3600, 21600, 43200, 86400])
-          .range(d3.schemeCategory10.slice(0,8));
+          .range(d3.schemeOranges[8]);
         vis.legendTitle = 'Encounter Length (seconds)';
         break;
       default:
         vis.colorScale = d3.scaleSequential()
           .domain(d3.extent(vis.data, d => d.year))
-          .interpolator(d3.interpolateRainbow);
+          .interpolator(d3.interpolateOranges);
           vis.legendTitle = 'Year';
     }
 
