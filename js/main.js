@@ -77,7 +77,7 @@ Promise.all([
 
     // Append the charts to their respective container divs
     shapeChart = new ShapeChart({parentElement: '#shape1'}, data);
-    monthChart = new MonthChart({parentElement: 'month1'}, data);
+    monthChart = new MonthChart({parentElement: '#month1'}, data);
     timeChart = new TimeChart({parentElement: '#time1'}, data);
     durationChart = new DurationChart({parentElement: '#duration1'}, data);
     wordCloud = new WordCloud({parentElement: '#wordcloud'}, invertedIndexData, data);

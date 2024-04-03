@@ -109,8 +109,13 @@ class LeafletMap {
     vis.theMap = L.map('leaflet-map', {
       center: [30, 0],
       zoom: 2,
-      layers: [vis.base_layers['Street Map']]
+      layers: [vis.base_layers['Street Map']],
+      scrollWheelZoom: false
     });
+
+    // only zoom with scroll after map click, disable after clicking on map
+    vis.theMap.on('focus', () => { vis.theMap.scrollWheelZoom.enable(); });
+    vis.theMap.on('blur', () => { vis.theMap.scrollWheelZoom.disable(); });
 
     vis.layerControl = L.control.layers(vis.base_layers, {}).addTo(vis.theMap);
 
