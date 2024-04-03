@@ -158,7 +158,7 @@ class ShapeChart {
                     .node()
                     .dispatchEvent(new CustomEvent('brush-selection', {detail:{
                         brushedData: filteredData
-                    }}))
+                    }}));
             }
             else if(!vis.resettingBrush && !vis.updatingFromBrush && !selection){
                 d3.select(vis.config.parentElement)

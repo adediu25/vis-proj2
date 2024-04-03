@@ -3,6 +3,7 @@ let leafletMap, timeline, shapeChart, monthChart, timeChart, durationChart, visL
 // Get the search bar and button elements
 const searchBar = document.getElementById("word-search");
 const searchButton = document.getElementById("search-button");
+const resetButton = document.getElementById("reset-button");
 
 // Get the full data and inverted index data
 let data, invertedIndexData;
@@ -99,6 +100,7 @@ Promise.all([
 // then call for brush to be reset on every other visualization
 
 d3.selectAll('.parent').on('brush-start', function(event){
+  searchBar.value='';
   visList.filter(d => d.config.parentElement.slice(1) != event.srcElement.id).forEach(function(d) {d.resetBrush();});
 });
 
@@ -127,6 +129,11 @@ searchButton.addEventListener("click", () => {
 
   // If the search bar is not empty, proceed with the search
   if (searchTerm !== "") {
+    // reset all charts
+    d3.select('#wordcloud')
+      .node()
+      .dispatchEvent(new CustomEvent('brush-start', {}));
+
     // Find the word object for the search term in the inverted index data
     const wordObj = invertedIndexData.find(wordObj => wordObj.text == searchTerm);
 
@@ -171,5 +178,25 @@ searchButton.addEventListener("click", () => {
           document.body.removeChild(popup);
         }, 1500);
     }
+    searchBar.value = searchTerm;
   }
+});
+
+// resets other visualizations
+resetButton.addEventListener("click", () => {
+  // reset all charts
+  d3.select('#wordcloud')
+    .node()
+    .dispatchEvent(new CustomEvent('brush-start', {}));
+
+  leafletMap.reset();
+
+  searchBar.value = '';
+
+
+  // d3.select('#wordcloud')
+  //   .node()
+  //   .dispatchEvent(new CustomEvent('brush-selection', {detail:{
+  //       brushedData: data
+  //   }}));
 });

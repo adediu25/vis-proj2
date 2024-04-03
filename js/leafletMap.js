@@ -338,13 +338,22 @@ class LeafletMap {
   }
 
   resetBrush(){
+    // let vis = this;
+    // vis.data = vis.fullData;
+    // vis.updateVis();
     return
     
-    let vis = this;
+    
     vis.resettingBrush = true;
     vis.brushG.call(vis.brush.clear);
     vis.updateVis();
     vis.resettingBrush = false;
+  }
+
+  reset(){
+    let vis = this;
+    vis.data = vis.fullData;
+    vis.updateVis();
   }
 
   updateFromBrush(brushedData){
