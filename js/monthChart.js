@@ -19,9 +19,9 @@ class MonthChart {
         countsByMonth.sort((a, b) => d3.ascending(a.month, b.month)); // Sort by month number
 
         // Set the dimensions and margins of the graph
-        const margin = {top: 20, right: 20, bottom: 30, left: 40},
-            width = 960 - margin.left - margin.right,
-            height = 500 - margin.top - margin.bottom;
+        const margin = {top: 20, right: 20, bottom: 40, left: 60},
+            width = window.innerWidth/2 - margin.left - margin.right-100,
+            height = 300 - margin.top - margin.bottom;
 
         vis.height = height;
 
@@ -69,6 +69,7 @@ class MonthChart {
             .attr("x", 0 - (height / 2) - margin.top)
             .attr("dy", "1em")
             .style("text-anchor", "middle")
+            .style('font-size', '14px')
             .text("Number of Sightings");
 
         vis.updateVis();
@@ -106,7 +107,7 @@ class MonthChart {
         const bars = vis.chart.selectAll('.bar');
 
         vis.chart.selectAll(".bar")
-            .on("mouseover", (event, d) => {
+            .on("mousemove", (event, d) => {
                 tooltip.transition()
                     .duration(200)
                     .style("opacity", .9);
@@ -114,7 +115,7 @@ class MonthChart {
                     .style("left", (event.pageX - 60) + "px")
                     .style("top", (event.pageY - 70) + "px");
             })
-            .on("mouseout", () => {
+            .on("mouseleave", () => {
                 tooltip.transition()
                     .duration(500)
                     .style("opacity", 0);

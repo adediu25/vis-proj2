@@ -8,6 +8,9 @@
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+    <div id="info" style="display: flex; justify-content: center; margin-bottom: 2em;">
+        <button id="toggle-info">Show Info</button>
+    </div>
 
     <!-- Add in the dropdown for the color by selection -->
     <div id="dropdowns" style="display: flex; justify-content: center;">
@@ -34,26 +37,17 @@
     </div>
     <div id="map-legend"></div>
 
-    <div class='parent' id="timeline"></div>
+    <div class='parent chart' id="timeline"></div>
 
     <div class="chart-row">
-        <div class="parent" id="shape1"></div>
-        <div class="parent" id="month1"></div>
+        <div class="parent inline chart" id="shape1"></div>
+        <div class="parent inline chart" id="month1"></div>
     </div>
 
     <div class="chart-row">
-        <div class="parent" id="time1"></div>
-        <div class="parent" id="duration1"></div>
+        <div class="parent inline chart" id="time1"></div>
+        <div class="parent inline chart" id="duration1"></div>
     </div>
-
-    <br>
-    <div class='parent' id="shape"></div>
-    <br>
-    <div class='parent' id="month"></div>
-    <br>
-    <div class='parent' id="time"></div>
-    <br>
-    <div class='parent' id="duration"></div>
     
     <!-- libraries -->
 
