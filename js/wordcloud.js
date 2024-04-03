@@ -50,8 +50,15 @@ class WordCloud {
             .attr("transform", d => "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")")
             .text(d => d.text)
             .on("click", (event, d) => {
+                document.getElementById("word-search").value = ""
+                console.log(d);
                 let filteredData = d.indexes.map(index => this.fullData[index]);
                 console.log("WordCloud - Data associated with '" + d.text + "':", filteredData);
+                d3.select(this.config.parentElement)
+                    .node()
+                    .dispatchEvent(new CustomEvent('brush-selection', {detail:{
+                        brushedData: filteredData
+                    }}));
             });
     }
 }

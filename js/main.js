@@ -8,8 +8,8 @@ const searchButton = document.getElementById("search-button");
 let data, invertedIndexData;
 
 Promise.all([
-  // d3.csv('data/ufo_sightings.csv'),
-  d3.csv('data/ufoSample.csv'),
+  d3.csv('data/ufo_sightings.csv'),
+  // d3.csv('data/ufoSample.csv'),
   d3.json('data/inverted_index_data.json')
 ])
 .then(([_data, _inverted_index_data]) => {
@@ -135,6 +135,12 @@ searchButton.addEventListener("click", () => {
 
         // Print the filtered data
         console.log(`Search Box - Data associated with '${searchTerm}':`, filteredData);
+        d3.select('#wordcloud')
+                    .node()
+                    .dispatchEvent(new CustomEvent('brush-selection', {detail:{
+                        brushedData: filteredData
+                    }}));
+
     } else {
         // If the word object is not found, print a message
         console.log(`Search Box -No data associated with '${searchTerm}'`);
