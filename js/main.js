@@ -1,8 +1,12 @@
-let leafletMap, timeline, shapeChart, monthChart, timeChart, durationChart;
+let leafletMap, timeline, shapeChart, monthChart, timeChart, durationChart, visList;
 
+Promise.all([
 d3.csv('data/ufo_sightings.csv')
 // d3.csv('data/ufoSample.csv')
-.then(data => {
+])
+.then(_data => {
+    let data = _data[0]
+
     console.log(data[0]);
     console.log(data.length);
 
@@ -54,10 +58,10 @@ d3.csv('data/ufo_sightings.csv')
     const chartRow2 = d3.select("body").append("div").attr("class", "chart-row");
 
     // Append the charts to their respective container divs
-    shapeChart = new ShapeChart({parentElement: chartRow1.append("div").attr("id", "shape1").node()}, data);
-    monthChart = new MonthChart({parentElement: chartRow1.append("div").attr("id", "month1").node()}, data);
-    timeChart = new TimeChart({parentElement: chartRow2.append("div").attr("id", "time1").node()}, data);
-    durationChart = new DurationChart({parentElement: chartRow2.append("div").attr("id", "duration1").node()}, data);
+    shapeChart = new ShapeChart({parentElement: '#shape1'}, data);
+    monthChart = new MonthChart({parentElement: 'month1'}, data);
+    timeChart = new TimeChart({parentElement: '#time1'}, data);
+    durationChart = new DurationChart({parentElement: '#duration1'}, data);
 
     // Function to update the scatterplot class
     function updateMapColor() {
@@ -75,6 +79,7 @@ d3.csv('data/ufo_sightings.csv')
 // then call for brush to be reset on every other visualization
 
 d3.selectAll('.parent').on('brush-start', function(event){
+  visList.forEach(d => console.log(d.config.parentElement))
   visList.filter(d => d.config.parentElement.slice(1) != event.srcElement.id).forEach(function(d) {d.resetBrush();});
 });
 
