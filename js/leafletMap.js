@@ -107,8 +107,8 @@ class LeafletMap {
     }
 
     vis.theMap = L.map('leaflet-map', {
-      center: [30, 0],
-      zoom: 2,
+      center: [40, -100],
+      zoom: 4,
       layers: [vis.base_layers['Street Map']],
       scrollWheelZoom: false
     });
@@ -306,7 +306,8 @@ class LeafletMap {
     vis.Dots.attr("fill", d => d.colorFill);
 
     //want to see how zoomed in you are? 
-    // console.log(vis.theMap.getZoom()); //how zoomed am I
+    console.log(vis.theMap.getZoom()); //how zoomed am I
+    console.log(vis.theMap.getCenter());
     
     //want to control the size of the radius to be a certain number of meters? 
     // vis.radiusSize = 3; 

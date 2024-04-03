@@ -8,7 +8,8 @@ const searchButton = document.getElementById("search-button");
 let data, invertedIndexData;
 
 Promise.all([
-  d3.csv('data/ufo_sightings.csv'),
+  // d3.csv('data/ufo_sightings.csv'),
+  d3.csv('data/ufoSample.csv'),
   d3.json('data/inverted_index_data.json')
 ])
 .then(([_data, _inverted_index_data]) => {
@@ -72,8 +73,8 @@ Promise.all([
 
     timeline = new Timeline({parentElement: '#timeline'}, data);
     // Wrap the two charts per row in a container div
-    const chartRow1 = d3.select("body").append("div").attr("class", "chart-row");
-    const chartRow2 = d3.select("body").append("div").attr("class", "chart-row");
+    // const chartRow1 = d3.select("body").append("div").attr("class", "chart-row");
+    // const chartRow2 = d3.select("body").append("div").attr("class", "chart-row");
 
     // Append the charts to their respective container divs
     shapeChart = new ShapeChart({parentElement: '#shape1'}, data);
@@ -98,7 +99,6 @@ Promise.all([
 // then call for brush to be reset on every other visualization
 
 d3.selectAll('.parent').on('brush-start', function(event){
-  visList.forEach(d => console.log(d.config.parentElement))
   visList.filter(d => d.config.parentElement.slice(1) != event.srcElement.id).forEach(function(d) {d.resetBrush();});
 });
 
