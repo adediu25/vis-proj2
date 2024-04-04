@@ -95,6 +95,14 @@ The other bar charts and map will update to visualize only the data that has bee
 
 ## Visual Design
 
+### UI Layout
+
+The layout and sizing was designed on a 1080p monitor with 125% scaling in the Windows settings. The rendering of the web page may be unexpected with different screen sizes and scalings.
+
+The UI layout is mainly based on the preliminary sketched, detailed below.
+We decided to have the map and word filtering at the top as they are the most interesting parts of the application.
+Grouping all the bar charts together makes most sense since they show data in a similar way.
+
 ### Color
 
 We decided on choosing steel blue for the basic chart coloring, like the bars and words in the word cloud. 
@@ -193,4 +201,4 @@ Below is the abstracted workflow of how visualizations are updated upon a brush 
 
 ## Video Demo
 
-[Youtube Link]()
+[Youtube Link](https://youtu.be/yyWZ17pefXk)
