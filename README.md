@@ -157,7 +157,7 @@ As to be exptected, lots of the top words include color, shapes, directions and 
 
 Encounters with green in the description are relatively short.
 
-
+Most of the encounters from 1906 to 1994 are "disk" shaped which is the most common pop culture representation of an alien space craft.
 
 ## Development Process
 
@@ -194,7 +194,7 @@ The code for the color scale legend (`legend.js`) is adapted from this source: h
   - loads word inverted index data
   - instantiates all visualization objects
   - handles inter-visualization updates
-  - handles word search logic
+  - handles word search logic with search bar
 - leafletMap.js
   - initializes leaflet map with custom options
   - handles drawing of data points
@@ -207,7 +207,9 @@ The code for the color scale legend (`legend.js`) is adapted from this source: h
   - update chart after brush selection
   - fire update after brush selection
 - wordcloud.js
-  - 
+  - handles plotting the words
+  - takes top 100 words and bounds their frequencies to 15-70 px
+  - on a word click will call the charts/map to update their data
  
 Below is the abstracted workflow of how visualizations are updated upon a brush selection:
 
@@ -224,6 +226,7 @@ Below is the abstracted workflow of how visualizations are updated upon a brush 
 ### Alexandru Dediu
 
 ### Andrew Gerstenslager
+Created the word cloud and search bar components. Wrote the script to preprocess the data. Made the two items provide filtered data for later use for display/filtering.
 
 ### Nick Murray
 
