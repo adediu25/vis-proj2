@@ -63,6 +63,7 @@ Chosing a different option will update the points on the map to their new color.
 
 ### Word Filtering
 
+Next to the map there are two filtering options using text: a wordcloud and a search bar. Both serve a similar purpose of filtering data to keywords. The wordcloud has the top 100 words displayed with size as the display to show the relative frequency. When a word is clicked on or a word in the inverted index is searched in the search box, the data and charts will automatically adjust to display only the indexes that contain the word in the description. There is also a reset button to clear the selection. 
 
 ### Bar Charts
 
@@ -155,10 +156,27 @@ The two libraries used in creating this application are [D3](https://d3js.org/) 
 Leaflet is used to implement the interactive map.
 D3 is used to develop all the other visualizations and manage data in the application.
 
+The inverted index data is preprocessed to save on compute time in the site itself. Before precomputing the data as another file to read in, the latency to open the site was 10-20 seconds which adds up with constant refreshing. This preprocessing was done in Python using the pandas, json, and nltk (natural language processing toolkit) libraries. Pandas read in the csv and tokenized and processed each description, then nltk was used in conjunction with some python dictionaries to construct the inverted index while nltk was used to eliminate stop words, and finally the json library was used to write a json file for the js frontend to read in. 
+
+The data read in is ready to go and is used by both the search bar and the wordcloud. The search bar would allow the user to find words not in the wordcloud. With how we preprocessed the data, we did not keep the stopwords in. This could always be changed by saving an additional flag such that the wordcloud does not display words with the stop flag set to true. The search bar also has a feature to have a popup display if the word searched for is not in the inverted index. Selecting or searching a relevant word will then update the vis with the appropriate indexes.
+
 The code for the color scale legend (`legend.js`) is adapted from this source: https://observablehq.com/@d3/color-legend
 
 ### Code Structure
+***data/***
+- generate_idf.ipynb
+  - loads in ufo_sightings.csv
+  - preprocesses the data
+  - creates idf json
+  - saves out data
+- ufo_sightings.csv
+  - primary data source
+  - all data is in reference to this file
+- inverted_index_data.json
+  - stores the inverted index for all non stop words
+  - also stores the length of the inverted index
 
+***js/***
 - main.js
   - loads sightings dataset
   - loads word inverted index data
