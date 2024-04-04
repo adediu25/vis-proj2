@@ -107,7 +107,7 @@ class LeafletMap {
     }
 
     vis.theMap = L.map('leaflet-map', {
-      center: [40, -100],
+      center: [40, -80],
       zoom: 4,
       layers: [vis.base_layers['Street Map']],
       scrollWheelZoom: false

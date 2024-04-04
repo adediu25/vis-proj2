@@ -46,6 +46,7 @@ class WordCloud {
             .enter().append("text")
             .style("font-size", d => d.size + "px")
             .style("font-family", "Impact")
+            .style("fill", "steelblue")
             .attr("text-anchor", "middle")
             .attr("transform", d => "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")")
             .text(d => d.text)

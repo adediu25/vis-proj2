@@ -4,6 +4,8 @@ let leafletMap, timeline, shapeChart, monthChart, timeChart, durationChart, visL
 const searchBar = document.getElementById("word-search");
 const searchButton = document.getElementById("search-button");
 const resetButton = document.getElementById("reset-button");
+const descButton = document.getElementById('toggle-info');
+const description = document.getElementById('info');
 
 // Get the full data and inverted index data
 let data, invertedIndexData;
@@ -200,3 +202,14 @@ resetButton.addEventListener("click", () => {
   //       brushedData: data
   //   }}));
 });
+
+descButton.addEventListener('click', () => {
+  if (description.style.display === 'none'){
+    descButton.innerHTML = 'Hide Info';
+    description.style.display = 'block'
+  }
+  else{
+    descButton.innerHTML = 'Show Info';
+    description.style.display = 'none'
+  }
+})
