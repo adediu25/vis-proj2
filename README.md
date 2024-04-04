@@ -151,6 +151,12 @@ These sketches provided us with a clear and achievable goal for the application.
 
 ## Visualization Discoveries
 
+Selecting the word "light" or "lights" and looking at the shapes graph below you can indeed see the disproportionate number of "light" shaped objects in the distribution showing a strong correlation between description and the shape. The same pattern can be seen for the word/shape combinations for most of the shapes including fireball, triangular/triangle, orb, and circular to name a few.  
+
+As to be exptected, lots of the top words include color, shapes, directions and adjectives all associated with ufos.
+
+Encounters with green in the description are relatively short.
+
 
 
 ## Development Process
