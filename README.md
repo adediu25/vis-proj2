@@ -63,7 +63,13 @@ Chosing a different option will update the points on the map to their new color.
 
 ### Word Filtering
 
-Next to the map there are two filtering options using text: a wordcloud and a search bar. Both serve a similar purpose of filtering data to keywords. The wordcloud has the top 100 words displayed with size as the display to show the relative frequency. When a word is clicked on or a word in the inverted index is searched in the search box, the data and charts will automatically adjust to display only the indexes that contain the word in the description. There is also a reset button to clear the selection. 
+Next to the map there are two filtering options using text: a wordcloud and a search bar. Both serve a similar purpose of filtering data to keywords. 
+
+The wordcloud has the top 100 words displayed with size as the display to show the relative frequency. 
+
+When a word is clicked on or a word in the inverted index is searched in the search box, the data and charts will automatically adjust to display only the indexes that contain the word in the description. 
+
+There is also a reset button to clear the selection. 
 
 ### Bar Charts
 
