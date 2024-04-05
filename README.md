@@ -159,6 +159,12 @@ Encounters with green in the description are relatively short.
 
 Most of the encounters from 1906 to 1994 are "disk" shaped which is the most common pop culture representation of an alien space craft.
 
+The greatest amount of sightings by time were at midnight, and of those sightings, the greatest amount of shape reported was a light.
+
+The number of sighting peaks in the summer months of June, July, and August. This makes sense as people are spending more time outside.
+
+There were reported encounter lengths that lasted for a full day, which seems crazy.
+
 ## Development Process
 
 Source code can be accessed at [GitHub](https://github.com/adediu25/vis-proj2), and a live version is hosted on [GitHub Pages](https://adediu25.github.io/vis-proj2/).
@@ -168,9 +174,17 @@ The two libraries used in creating this application are [D3](https://d3js.org/) 
 Leaflet is used to implement the interactive map.
 D3 is used to develop all the other visualizations and manage data in the application.
 
-The inverted index data is preprocessed to save on compute time in the site itself. Before precomputing the data as another file to read in, the latency to open the site was 10-20 seconds which adds up with constant refreshing. This preprocessing was done in Python using the pandas, json, and nltk (natural language processing toolkit) libraries. Pandas read in the csv and tokenized and processed each description, then nltk was used in conjunction with some python dictionaries to construct the inverted index while nltk was used to eliminate stop words, and finally the json library was used to write a json file for the js frontend to read in. 
+The inverted index data is preprocessed to save on compute time in the site itself. 
+Before precomputing the data as another file to read in, the latency to open the site was 10-20 seconds which adds up with constant refreshing. 
+This preprocessing was done in Python using the pandas, json, and nltk (natural language processing toolkit) libraries. 
+Pandas read in the csv and tokenized and processed each description, then nltk was used in conjunction with some python dictionaries to construct the inverted index while nltk was used to eliminate stop words, and finally the json library was used to write a json file for the js frontend to read in. 
 
-The data read in is ready to go and is used by both the search bar and the wordcloud. The search bar would allow the user to find words not in the wordcloud. With how we preprocessed the data, we did not keep the stopwords in. This could always be changed by saving an additional flag such that the wordcloud does not display words with the stop flag set to true. The search bar also has a feature to have a popup display if the word searched for is not in the inverted index. Selecting or searching a relevant word will then update the vis with the appropriate indexes.
+The data read in is ready to go and is used by both the search bar and the wordcloud.
+The search bar would allow the user to find words not in the wordcloud. 
+With how we preprocessed the data, we did not keep the stopwords in. 
+This could always be changed by saving an additional flag such that the wordcloud does not display words with the stop flag set to true. 
+The search bar also has a feature to have a popup display if the word searched for is not in the inverted index. 
+Selecting or searching a relevant word will then update the vis with the appropriate indexes.
 
 The code for the color scale legend (`legend.js`) is adapted from this source: https://observablehq.com/@d3/color-legend
 
@@ -187,6 +201,8 @@ The code for the color scale legend (`legend.js`) is adapted from this source: h
 - inverted_index_data.json
   - stores the inverted index for all non stop words
   - also stores the length of the inverted index
+- ufoSample.csv
+  - truncated dataset used during development for faster performance during testing
 
 ***js/***
 - main.js
@@ -225,12 +241,26 @@ Below is the abstracted workflow of how visualizations are updated upon a brush 
 
 ### Alexandru Dediu
 
+- Project management (code reviews, task planning and division, organizing repository, etc)
+- Color choices and component layout and sizing
+- Base leaflet map with ability to change base layer
+- Bar chart brushing selection functionality
+- Implemented all chart updates on brush or word filtering selection
+
 ### Andrew Gerstenslager
-Created the word cloud and search bar components. Wrote the script to preprocess the data. Made the two items provide filtered data for later use for display/filtering.
+
+- Created the word cloud and search bar components. 
+- Wrote the script to preprocess the text data for indexing words.
+- Implemented filtering data on word cloud selection or search bar input.
 
 ### Nick Murray
 
+- Implemented changing map data coloring (dropdown input, event listeners, scales, color scales, etc)
+- css changes
+
 ### Zachary Carlson
+
+- Built base bar charts (timeline, and 4 additional bar charts)
 
 ## Video Demo
 
